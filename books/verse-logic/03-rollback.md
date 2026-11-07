@@ -232,19 +232,19 @@ Halve(N:int)<decides>:int =
     Quotient[N, 2]
 
 Main():void =
-    var Log:int = 0
-    A := (set Log += 1; Halve[7]) or 100
-    Print("A = {A}, Log = {Log}")
-    B:?int = option{set Log += 10; Halve[8]}
-    if (V := B?) { Print("B holds {V}, Log = {Log}") }
-    C:?int = option{set Log += 100; Halve[9]}
-    if (not C?) { Print("C is empty, Log = {Log}") }
+    var Tally:int = 0
+    A := (set Tally += 1; Halve[7]) or 100
+    Print("A = {A}, Tally = {Tally}")
+    B:?int = option{set Tally += 10; Halve[8]}
+    if (V := B?) { Print("B holds {V}, Tally = {Tally}") }
+    C:?int = option{set Tally += 100; Halve[9]}
+    if (not C?) { Print("C is empty, Tally = {Tally}") }
 ```
 
 ```{.output}
-A = 100, Log = 0
-B holds 4, Log = 10
-C is empty, Log = 10
+A = 100, Tally = 0
+B holds 4, Tally = 10
+C is empty, Tally = 10
 ```
 
 `Halve` is a `<decides>` function: its first line *fails* unless $N$ is
