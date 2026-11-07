@@ -35,6 +35,9 @@ Two submodules are pinned to exact commits:
   the playground. It pins its own openverse and Lean in `demo/sources.json`.
   Bump it the same way.
 
+Dependabot (`.github/dependabot.yml`) opens a pull request when either
+submodule's repository moves, and CI decides whether the books still hold.
+
 ## Building
 
 Requirements: `pandoc` (3.1 or later), `xelatex` with the TeX Gyre fonts,

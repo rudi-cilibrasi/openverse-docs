@@ -1,0 +1,13 @@
+# Keep the pins current. A submodule bump (openverse/ or demo/) is a pull request
+# whose CI re-checks every program and Lean statement of the books against the new
+# openverse and rebuilds and browser-tests the playground; merge it when it is green.
+version: 2
+updates:
+  - package-ecosystem: gitsubmodule
+    directory: /
+    schedule:
+      interval: daily
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
