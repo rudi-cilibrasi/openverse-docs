@@ -78,7 +78,7 @@ jobs:
       - name: Build the web and Markdown editions
         run: DEMO_DIST=none scripts/build-site.sh
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: books-site
           path: build/site
@@ -132,14 +132,14 @@ jobs:
           npx playwright install --with-deps chromium
           npm test
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: demo-test-results
           path: demo/test-results
           if-no-files-found: ignore
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: demo-dist
           path: demo/dist
@@ -166,7 +166,7 @@ jobs:
       - name: Check every link
         run: python3 scripts/check-site.py build/site
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: site
           path: build/site
