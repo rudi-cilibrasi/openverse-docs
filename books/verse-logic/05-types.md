@@ -54,7 +54,7 @@ covariant arrays are sound where Java's are not.
 Verse Core types are
 
 $$
-\tau \ ::=\ \mathit{int} \mid \mathit{logic} \mid \mathit{char} \mid [\,]\tau \mid
+\tau \ ::=\ \mathit{int} \mid \mathit{logic} \mid \mathit{char} \mid \mathit{float} \mid [\,]\tau \mid
 \mathit{tuple}(\tau_1, \ldots, \tau_n) \mid {?}\tau \mid \alpha_j \mid
 \mathit{ref}\ C\ \vec{\tau}
 $$
@@ -92,6 +92,7 @@ def hasTy (Ξ : HeapTy) : Value → VTy → Bool
   | .int _, .int => true
   | .logic _, .logic => true
   | .char c, .char => decide (c < 256)
+  | .float _, .float => true
   | .arr vs, .arr t => allTy Ξ vs.toList t
 ...
   | .ref a, .ref ts args => match Ξ[a]? with
