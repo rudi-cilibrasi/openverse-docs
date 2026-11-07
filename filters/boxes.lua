@@ -14,8 +14,9 @@
 --   <div class="box theorem"><div class="box-title">…</div> … </div>
 --   <div class="output-panel"><pre>…</pre></div>    (class "empty" if no output)
 --   <div class="reject-panel"><p><strong>Rejected:</strong> <code>…</code></p></div>
---   <div class="runnable"><pre>…</pre><p class="run-link"><a href="../demo/#code=…">…</a></p></div>
---     around every whole program (.run, .check, .reject): the link opens it in the playground
+--   <div class="runnable"><pre>…</pre><p><a href="../demo/#code=…">…</a></p></div>
+--     around every whole program (.run, .check, .reject): the link opens it in the playground;
+--     the PDF gets the same link under the program (\runlink)
 
 local boxes = { theorem = true, definition = true, note = true, exercise = true, rule = true }
 local checkclasses = { run = true, check = true, reject = true, fragment = true, claim = true, excerpt = true }
@@ -40,10 +41,17 @@ local function urlencode(s)
   return (s:gsub("[^%w%-%._~]", function(c) return string.format("%%%02X", c:byte()) end))
 end
 
--- the program, and under it a link that opens it in the playground (web only)
+-- the program, and under it a link that opens it in the playground: relative on
+-- the web, absolute in the PDF (where \runlink, in tex/common.tex, sets it)
+local PLAYGROUND = "https://rudi-cilibrasi.github.io/openverse-docs/demo/"
+
 local function runnable(block, text)
+  if FORMAT:match("latex") then
+    local url = (PLAYGROUND .. "#code=" .. urlencode(text)):gsub("%%", "\\%%"):gsub("#", "\\#")
+    return { block, pandoc.RawBlock("latex", "\\runlink{" .. url .. "}") }
+  end
   local link = pandoc.Link({ pandoc.Str("Run in the playground") }, "../demo/#code=" .. urlencode(text))
-  return pandoc.Div({ block, pandoc.Para({ link }) }, pandoc.Attr("", { "runnable" }))
+  return { pandoc.Div({ block, pandoc.Para({ link }) }, pandoc.Attr("", { "runnable" })) }
 end
 
 local function escape_latex(s)
@@ -101,21 +109,13 @@ function CodeBlock(el)
 
   local block = pandoc.CodeBlock(el.text, pandoc.Attr(el.identifier, kept, {}))
   local whole = is["verse"] and (is["run"] or is["check"] or is["reject"])
-  if whole and not FORMAT:match("latex") then block = runnable(block, el.text) end
+  local out = whole and runnable(block, el.text) or { block }
   if is["reject"] and not FORMAT:match("latex") then
-    return {
-      block,
-      pandoc.Div({ pandoc.Para({ pandoc.Strong({ pandoc.Str("Rejected:") }), pandoc.Space(),
-        pandoc.Code(el.attributes["expect"] or "") }) }, pandoc.Attr("", { "reject-panel" })),
-    }
+    table.insert(out, pandoc.Div({ pandoc.Para({ pandoc.Strong({ pandoc.Str("Rejected:") }), pandoc.Space(),
+      pandoc.Code(el.attributes["expect"] or "") }) }, pandoc.Attr("", { "reject-panel" })))
+  elseif is["reject"] then
+    table.insert(out, pandoc.RawBlock("latex", "\\begin{rejectpanel}\\textsf{\\textbf{Rejected:}} \\texttt{"
+      .. escape_latex(el.attributes["expect"] or "") .. "}\\end{rejectpanel}"))
   end
-  if is["reject"] then
-    local expect = el.attributes["expect"] or ""
-    return {
-      block,
-      pandoc.RawBlock("latex", "\\begin{rejectpanel}\\textsf{\\textbf{Rejected:}} \\texttt{"
-        .. escape_latex(expect) .. "}\\end{rejectpanel}"),
-    }
-  end
-  return block
+  return out
 end
