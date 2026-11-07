@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
 <!-- Minimal Lean 4 highlighting for pandoc/skylighting (KDE format). -->
-<language name="Lean" section="Sources" version="1" kateversion="5.0" extensions="*.lean" mimetype="text/x-lean" author="promodoc" license="MIT">
+<language name="Lean" section="Sources" version="1" kateversion="5.0" extensions="*.lean" mimetype="text/x-lean" author="openverse-docs" license="MIT">
   <highlighting>
     <list name="keywords">
       <item>theorem</item><item>lemma</item><item>def</item><item>abbrev</item><item>inductive</item>

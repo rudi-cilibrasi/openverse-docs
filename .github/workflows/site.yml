@@ -1,0 +1,205 @@
+# Builds the website and publishes it on GitHub Pages, from the gh-pages branch.
+#
+#   books   check every program and Lean statement of both books against the pinned
+#           openverse (the openverse/ submodule), then build the PDFs and the web and
+#           Markdown editions
+#   demo    build the playground (the demo/ submodule) from source, the Lean compiler
+#           and the C runtime as WebAssembly, and run its browser tests
+#   site    put the two together and check every link of the result
+#   deploy  pushes to main only: replace the gh-pages branch with the site
+#
+# Pull requests run everything but deploy; the assembled site is the "site" artifact.
+name: site
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  books:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      OPENVERSE: ${{ github.workspace }}/openverse
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out the pinned openverse
+        id: pin
+        run: |
+          git submodule update --init openverse
+          echo "openverse=$(git rev-parse HEAD:openverse)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache elan and the openverse build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            openverse/.lake
+          key: openverse-${{ runner.os }}-${{ steps.pin.outputs.openverse }}
+          restore-keys: |
+            openverse-${{ runner.os }}-
+
+      - name: Install elan
+        run: |
+          if [ ! -x "$HOME/.elan/bin/elan" ]; then
+            curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+              | sh -s -- -y --default-toolchain none
+          fi
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Build openverse
+        working-directory: openverse
+        run: lake build
+
+      - name: Install pandoc, XeLaTeX and the fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pandoc texlive-xetex texlive-latex-recommended texlive-latex-extra \
+            texlive-fonts-recommended texlive-plain-generic lmodern \
+            fonts-texgyre fonts-texgyre-math fonts-dejavu-core poppler-utils
+
+      - name: Check the books against openverse
+        run: make check
+
+      - name: Build the PDFs
+        run: make pdf
+
+      - name: Build the web and Markdown editions
+        run: DEMO_DIST=none scripts/build-site.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: books-site
+          path: build/site
+          include-hidden-files: true
+          if-no-files-found: error
+
+  demo:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out the pinned playground
+        id: pin
+        run: |
+          git submodule update --init demo
+          echo "demo=$(git rev-parse HEAD:demo)" >> "$GITHUB_OUTPUT"
+
+      # The playground's object cache is content-addressed, so an older cache is
+      # still useful after the pin moves: only changed sources are recompiled.
+      - name: Cache elan, the Lean build and the WebAssembly objects
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            demo/.build/objects
+            demo/.build/openverse/.lake
+          key: demo-${{ runner.os }}-${{ steps.pin.outputs.demo }}
+          restore-keys: |
+            demo-${{ runner.os }}-
+
+      - name: Install the playground's build tools
+        run: |
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          PATH="$HOME/.elan/bin:$PATH" demo/scripts/install-deps.sh
+
+      - name: Build the playground
+        working-directory: demo
+        run: scripts/build.sh
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: demo/package-lock.json
+
+      - name: Browser tests
+        working-directory: demo
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npm test
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: demo-test-results
+          path: demo/test-results
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: demo-dist
+          path: demo/dist
+          include-hidden-files: true
+          if-no-files-found: error
+
+  site:
+    needs: [books, demo]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: books-site
+          path: build/site
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: demo-dist
+          path: build/site/demo
+
+      - name: Check every link
+        run: python3 scripts/check-site.py build/site
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: build/site
+          include-hidden-files: true
+          if-no-files-found: error
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: site
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    concurrency:
+      group: gh-pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: site
+
+      # One commit, force-pushed: the branch never accumulates old WebAssembly.
+      - name: Publish to the gh-pages branch
+        working-directory: site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Site built from ${GITHUB_REPOSITORY}@${GITHUB_SHA}"
+          git push --force -q "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+          owner="${GITHUB_REPOSITORY%%/*}"
+          echo "Published https://${owner}.github.io/${GITHUB_REPOSITORY#*/}/ from ${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"

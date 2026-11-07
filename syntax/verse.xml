@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
 <!-- Syntax highlighting for the openverse subset of Verse (pandoc/skylighting, KDE format). -->
-<language name="Verse" section="Sources" version="1" kateversion="5.0" extensions="*.verse" mimetype="text/x-verse" author="promodoc" license="MIT">
+<language name="Verse" section="Sources" version="1" kateversion="5.0" extensions="*.verse" mimetype="text/x-verse" author="openverse-docs" license="MIT">
   <highlighting>
     <list name="keywords">
       <item>if</item><item>then</item><item>else</item><item>for</item><item>do</item>

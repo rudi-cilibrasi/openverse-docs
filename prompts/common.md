@@ -1,6 +1,6 @@
-# promodoc: writing the openverse books
+# openverse-docs: writing the openverse books
 
-You are writing a book in the `promodoc` repository, the documentation set of
+You are writing a book in the `openverse-docs` repository, the documentation set of
 **openverse**: a clean-room reference implementation of a deterministic subset
 of Verse (Epic Games' functional logic language), with its semantics defined
 and proved in Lean 4 and a C runtime checked against it. The repository builds

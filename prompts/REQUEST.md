@@ -17,6 +17,10 @@ The documentation set was started from this request by the maintainer
 > either. (might be same script) use the promodoc repo to hold this stuff.
 > it is private for now.
 
+The repository was later renamed **openverse-docs** and made public, with the
+online playground and openverse itself as submodules and a website built from
+both books (see the README).
+
 ## How the request became prompts
 
 - `common.md`: shared by both books: the sources of truth in openverse,
