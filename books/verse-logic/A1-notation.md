@@ -14,7 +14,7 @@ Values $v$, outcomes $r$, error kinds $k$ and states $s$ (a frame, an
 output and a heap):
 $$
 \begin{array}{rcl}
-v & ::= & \kw{int}\ n \mid \kw{logic}\ b \mid \kw{char}\ c \mid \kw{arr}\ [\vec v] \mid \kw{tup}\ [\vec v]
+v & ::= & \kw{int}\ n \mid \kw{logic}\ b \mid \kw{char}\ c \mid \kw{float}\ x \mid \kw{arr}\ [\vec v] \mid \kw{tup}\ [\vec v]
           \mid \kw{none} \mid \kw{some}\ v \mid \kw{ref}\ a \\
 r & ::= & \ok{v} \mid \fail \mid \brk \mid \ret{v} \mid \err{k} \\
 k & ::= & \mathit{overflow} \mid \mathit{type} \mid \mathit{slot} \mid \mathit{call} \mid \mathit{control} \mid \mathit{user} \\
@@ -25,7 +25,8 @@ $$
 Integers satisfy $-2^{63} \leq n < 2^{63}$ (an invariant that `Res.ofInt`
 maintains, not one the Lean type enforces); `void` is $\kw{tup}\ []$; a
 `string` is an array of `char`s, each a UTF-8 code unit (below 256 in a
-typed program: `hasTy` requires it); `false` as an empty option is
+typed program: `hasTy` requires it); a $\kw{float}$ holds the bits of an IEEE
+64-bit double, with one canonical NaN; `false` as an empty option is
 $\kw{none}$. A heap is an array of objects, each a class tag and a
 list of field values.
 
