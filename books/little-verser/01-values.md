@@ -248,12 +248,28 @@ Why does a string have a `Length`?
 
 Can an array hold an `int` and a string?
 
-```{.verse .reject expect="different types: int and string"}
+```{.verse .run}
 Main():void =
     Mixed := array{1, "two"}
+    Print("{Mixed.Length}")
 ```
 
-> No. Every element of an array has the same type.
+> ```{.output}
+> 2
+> ```
+>
+> Yes, but only as things of type `any`, the type every value has.
+
+What can we do with an `any`?
+
+```{.verse .reject expect="no operator '+' for any and int"}
+Main():void =
+    Mixed := array{1, "two"}
+    if (X := Mixed[0]):
+        Print("{X + 1}")
+```
+
+> Almost nothing. Verse no longer knows that `Mixed[0]` is the `int` `1`. Keep one kind of thing in an array.
 
 Is `array{}` an array?
 
