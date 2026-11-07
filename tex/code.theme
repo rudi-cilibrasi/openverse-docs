@@ -5,7 +5,7 @@
   "line-number-background-color": null,
   "text-styles": {
     "Alert": {
-      "text-color": "#ef2929",
+      "text-color": "#d72424",
       "background-color": null,
       "bold": false,
       "italic": false,
@@ -33,14 +33,14 @@
       "underline": false
     },
     "Char": {
-      "text-color": "#4e9a06",
+      "text-color": "#3f7c04",
       "background-color": null,
       "bold": false,
       "italic": false,
       "underline": false
     },
     "Comment": {
-      "text-color": "#7a7a7a",
+      "text-color": "#6f6f6f",
       "background-color": null,
       "bold": false,
       "italic": true,
@@ -166,7 +166,7 @@
       "underline": false
     },
     "SpecialString": {
-      "text-color": "#4e9a06",
+      "text-color": "#3f7c04",
       "background-color": null,
       "bold": false,
       "italic": false,
@@ -187,7 +187,7 @@
       "underline": false
     },
     "VerbatimString": {
-      "text-color": "#4e9a06",
+      "text-color": "#3f7c04",
       "background-color": null,
       "bold": false,
       "italic": false,
