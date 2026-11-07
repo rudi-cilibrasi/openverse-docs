@@ -4,7 +4,7 @@
 #   make check      run every program and compare every Lean statement (needs openverse)
 #   make pdf        build/verse-logic/verse-logic.pdf, build/little-verser/little-verser.pdf
 #   make verse-logic | make little-verser    one book (check + pdf)
-#   make generate AGENT=claude BOOK=little-verser [CHAPTER=3] [TASK="..."]
+#   make generate AGENT=claude BOOK=little-verser [CHAPTER=3] [TASK="..."] [MODEL=...] [DRY=1]
 #                   regenerate a book with an agent CLI (scripts/generate.sh)
 #
 # OPENVERSE is the openverse checkout whose Lean proofs and binary the books
@@ -32,7 +32,7 @@ $(BOOKS):
 
 generate:
 	scripts/generate.sh --agent $(AGENT) --book $(BOOK) \
-	  $(if $(CHAPTER),--chapter $(CHAPTER)) $(if $(TASK),--task "$(TASK)") $(if $(MODEL),--model $(MODEL))
+	  $(if $(CHAPTER),--chapter $(CHAPTER)) $(if $(TASK),--task "$(TASK)") $(if $(MODEL),--model $(MODEL)) $(if $(DRY),--dry-run)
 
 clean:
 	rm -rf build

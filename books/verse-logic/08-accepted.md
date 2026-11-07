@@ -2,8 +2,8 @@
 
 ## An opening problem
 
-Every theorem so far had a hypothesis about the program: `EffectSound`,
-`ProgTyped`, `WriteSound`. The Verse programs in this book were not written
+The theorems of Chapters 4 to 7 had a hypothesis about the program:
+`EffectSound`, `ProgTyped`, `WriteSound`. The Verse programs in this book were not written
 in Verse Core. They were written in surface Verse and translated by
 openverse's front end, more than five thousand lines of lexer, parser
 and elaborator that nobody has proved correct. Why should the theorems apply to
@@ -272,7 +272,8 @@ bytes the C runtime prints has these links:
 | checks $\Rightarrow$ hypotheses | Lean: `checkEffectSound_ok`, `checkTypes_sound`, … |
 | hypotheses $\Rightarrow$ guarantees | Lean: Chapters 2–7, combined in `Prog.accepted` |
 | relation $=$ reference interpreter | Lean: `eval_iff` (Chapter 1) |
-| Verse Core $\to$ binary (OVBC) $\to$ C loader | C loader proved (QuickProof, Coq) to accept only `WellScoped` programs |
+| Verse Core $\to$ binary (OVBC, `Prog.encode`) | unverified; covered by differential testing |
+| OVBC $\to$ C loader | loader proved (QuickProof, Coq) to accept only `WellScoped` programs |
 | reference interpreter $\approx$ C interpreter | differential testing and fuzzing, under sanitizers; not proved |
 | C arithmetic $=$ `Prim.apply` | QuickProof law `arith_exact` + `Seams.lean`, meeting at a formula read by a human |
 | C rollback store | QuickProof law `store_rollback_model`, against a naive snapshot model, bounded |
@@ -291,8 +292,9 @@ lines of elaborator.
   memory as a resource limit (exit 3).
 - **The C interpreter is not proved.** It is a transcription of the Lean
   interpreter, tested against it on every test program and on random ones.
-  Its components that rollback and memory safety depend on are proved, with
-  bounds stated in their laws.
+  Its slot-and-output rollback store (`store.c`), its loader and its
+  integer arithmetic are proved, with bounds stated in their laws; its
+  object store and its value heap are not.
 - **Meaning is a definition.** All of this is relative to the semantics as
   defined, and that the definition is Verse, as the Book of Verse describes
   it, is a matter of reading, documented in openverse's `docs/LANGUAGE.md`.

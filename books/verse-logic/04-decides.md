@@ -142,8 +142,8 @@ applies. Four cases carry the idea.
 
 **Primitives.** A successful argument list leads to $p.\mathrm{apply}\
 \vec{v}$, and a lemma, `Prim.apply_ne_fail`, says that a primitive that is
-not failable never returns $\fail$. Comparisons, indexing, division and
-`?` are the failable ones.
+not failable never returns $\fail$. The failable ones are the comparisons,
+indexing and indexed update, the division family, `?`, and `false?`.
 
 **`ite`.** If the derivation ends in \rulename{Ite-Ok} or
 \rulename{Ite-Fail}, the outcome is the outcome of $t$ or of $e$, and both

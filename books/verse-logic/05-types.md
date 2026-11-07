@@ -190,10 +190,13 @@ returns a value of type $\tau$.
 ```
 
 `Ξ <+: Ξ'` is Lean's notation for "is a prefix of". The theorem is
-*preservation* in big-step form, and it subsumes *progress*: in a
-small-step semantics, progress says a typed term is a value or can step;
-here, the corresponding danger is a derivation that ends in a type error,
-and $\mathrm{ResOK}$ excludes it.
+*preservation* in big-step form, and here it also does the work of
+*progress*. In a small-step semantics, progress says a typed term is a value
+or can step. In big-step form that is not implied by preservation in
+general, because a stuck configuration simply has no derivation. It is in
+this semantics because, as Chapter 1 noted, there are no stuck
+configurations: every ill-shaped step derives an explicit error, so "goes
+wrong" means "derives $\err{\mathit{type}}$", which $\mathrm{ResOK}$ excludes.
 
 ```{.lean .claim name="Runs.typed"}
 @Runs.typed : ∀ {P : Prog} {S : Sigs},
@@ -234,8 +237,13 @@ invariantly: `set` on a field checks the field's declared type.)
 derivation but, as in Chapter 2, through the interpreter: by strong
 induction on the *fuel*, for the statement "if `eval P n s e = some (r, s')`
 and the hypotheses hold, then the conclusion holds", and then transports the
-result to `Eval` with `eval_iff`. The case analysis is the same; working
-with the interpreter makes every case a computation. The ingredients:
+result to `Eval` with `eval_iff`. The reason is the call case. A callee's
+body is an initialization prefix followed by the user's code $b$; the
+frame satisfies $\Gamma$ only *after* the prefix has run, so the induction
+hypothesis is needed for $b$ evaluated from that later state, at whatever
+smaller fuel remains (`eval_initPrefixE`). That evaluation is not a
+subderivation of anything in hand, so structural induction on derivations
+does not reach it, while strong induction on fuel does. The ingredients:
 
 1. **Inversion up to subsumption.** A typing derivation may end with any
    number of \rulename{T-Sub} steps. The proof peels them off: if
@@ -259,11 +267,14 @@ with the interpreter makes every case a computation. The ingredients:
    from the original state $s$, typed under the original $\Xi$; whatever
    $\Xi$ the failed condition reached is discarded with its state.
 
-`Runs.typed` instantiates preservation at `Main` with an empty frame and the
-initial heap. That heap is not quite empty: openverse allocates one
-*prototype* object per class before `Main` runs, as the default value of
-class-typed variables, and $\mathrm{ProgTyped}$ requires those to be well
-typed (`PreludeOK`).
+`Runs.typed` instantiates preservation at the call of `Main`, from the
+initial state, whose frame and heap are empty. When the program has
+classes, there is one more step. Class-typed variables start as *prototype*
+objects (one per non-parametric concrete class), so the Verse Core `Main` is
+a prelude that allocates the prototypes and then calls the user's `Main`.
+`Runs.typed` evaluates the prelude (`Eval.of_protoPrelude`) and applies
+preservation to that inner call, from the heap of prototypes, which
+$\mathrm{ProgTyped}$ requires to be well typed (`PreludeOK`).
 
 **The type checker is sound.** Where does $\mathrm{ProgTyped}\ P\ S$ come
 from? openverse runs a bidirectional type checker, `tc`, on every program the
@@ -320,8 +331,8 @@ in a failure context.)
 ## Limits and readings
 
 - **Type errors are excluded; other errors are not.** Overflow and `Err()`
-  remain possible, and so do slot and call errors unless the program is also
-  well scoped, which Chapter 8 adds.
+  remain possible, and so do slot, call and control errors unless the program
+  also passes `checkWellScoped` and `checkControl`, which Chapter 8 adds.
 - **The trusted part is the statement.** The typing rules and $\mathrm{hasTy}$
   are definitions. That they match Verse's surface type system is the
   elaborator's business, and it is not proved: what is proved is that
@@ -342,13 +353,16 @@ in a failure context.)
    no sense in Verse Core: which Verse Core conditions in this book have type
    `void`? Which have type `int`?
 3. Write the case of preservation for $\kw{assign}\ i\ e$. Where is
-   `FrameOK` used, and why is $\Xi$ unchanged?
+   `FrameOK` used? Why does the slot write itself not extend the heap typing
+   (take $\Xi'$ from the induction hypothesis for $e$, which may allocate)?
 4. Java's array store check exists because arrays are mutable and shared.
    Suppose Verse Core gained a primitive $\mathit{arrWrite}$ that mutates an
    array *in place*, visible through every alias. Give a typed program that
    goes wrong, and say which step of the proof breaks.
-5. (*) Big-step type safety says nothing about diverging programs. State a
-   fuel-indexed version that does: for every $n$, if
-   `eval P n s e = some (r, s')` then … Why is this what openverse actually
-   proves first?
+5. (*) State the fuel-indexed version of preservation: for every $n$, if
+   `eval P n s e = some (r, s')` and the hypotheses hold, then … Show that,
+   by `eval_iff`, it is equivalent to `Eval.typed`, so it says nothing more
+   about diverging programs. Why is it nonetheless the version openverse
+   proves first? What would a statement about diverging runs need (for
+   example, an interpreter that returns its state when the fuel runs out)?
 :::
