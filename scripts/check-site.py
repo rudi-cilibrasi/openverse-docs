@@ -6,7 +6,8 @@
 
 Every relative href and src in every HTML page must name a file of the site
 (a directory means its index.html), and a #fragment must name an id in the
-page it points into. Links to other sites are not fetched. With --without
+page it points into, unless it carries parameters (#code=…, read by the
+playground's script). Links to other sites are not fetched. With --without
 PREFIX, links into PREFIX (relative to the site root) are skipped, and pages
 under it are not read.
 """
@@ -66,7 +67,7 @@ def main():
                 problems.append(f"{where}: leaves the site")
             elif not target.is_file():
                 problems.append(f"{where}: no such file")
-            elif parts.fragment and target.suffix == ".html":
+            elif parts.fragment and "=" not in parts.fragment and target.suffix == ".html":
                 ids = pages[target].ids if target in pages else set()
                 if unquote(parts.fragment) not in ids:
                     problems.append(f"{where}: no id {parts.fragment!r} in {target.relative_to(root)}")

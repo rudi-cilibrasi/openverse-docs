@@ -92,7 +92,7 @@ def hasTy (Ξ : HeapTy) : Value → VTy → Bool
   | .int _, .int => true
   | .logic _, .logic => true
   | .char c, .char => decide (c < 256)
-  | .arr vs, .arr t => allTy Ξ vs t
+  | .arr vs, .arr t => allTy Ξ vs.toList t
 ...
   | .ref a, .ref ts args => match Ξ[a]? with
     | some (t, args') => ts.contains t && args.isPrefixOf args'

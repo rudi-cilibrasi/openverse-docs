@@ -14,6 +14,8 @@
 --   <div class="box theorem"><div class="box-title">…</div> … </div>
 --   <div class="output-panel"><pre>…</pre></div>    (class "empty" if no output)
 --   <div class="reject-panel"><p><strong>Rejected:</strong> <code>…</code></p></div>
+--   <div class="runnable"><pre>…</pre><p class="run-link"><a href="../demo/#code=…">…</a></p></div>
+--     around every whole program (.run, .check, .reject): the link opens it in the playground
 
 local boxes = { theorem = true, definition = true, note = true, exercise = true, rule = true }
 local checkclasses = { run = true, check = true, reject = true, fragment = true, claim = true, excerpt = true }
@@ -31,6 +33,17 @@ local function inlines_of_markdown(s)
   local doc = pandoc.read(s, "markdown")
   if #doc.blocks > 0 and doc.blocks[1].content then return doc.blocks[1].content end
   return {}
+end
+
+-- percent-encode UTF-8 bytes for a URL fragment (the playground's #code=…)
+local function urlencode(s)
+  return (s:gsub("[^%w%-%._~]", function(c) return string.format("%%%02X", c:byte()) end))
+end
+
+-- the program, and under it a link that opens it in the playground (web only)
+local function runnable(block, text)
+  local link = pandoc.Link({ pandoc.Str("Run in the playground") }, "../demo/#code=" .. urlencode(text))
+  return pandoc.Div({ block, pandoc.Para({ link }) }, pandoc.Attr("", { "runnable" }))
 end
 
 local function escape_latex(s)
@@ -87,6 +100,8 @@ function CodeBlock(el)
   end
 
   local block = pandoc.CodeBlock(el.text, pandoc.Attr(el.identifier, kept, {}))
+  local whole = is["verse"] and (is["run"] or is["check"] or is["reject"])
+  if whole and not FORMAT:match("latex") then block = runnable(block, el.text) end
   if is["reject"] and not FORMAT:match("latex") then
     return {
       block,
