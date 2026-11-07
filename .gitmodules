@@ -1,0 +1,6 @@
+[submodule "demo"]
+	path = demo
+	url = https://github.com/rudi-cilibrasi/openverse-online-demo.git
+[submodule "openverse"]
+	path = openverse
+	url = https://github.com/rudi-cilibrasi/openverse.git
