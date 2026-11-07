@@ -26,11 +26,21 @@ yourself, save it in a file, say `hunt.verse`, and type
 openverse run hunt.verse
 ```
 
+or paste it into the [openverse playground](https://rudi-cilibrasi.github.io/openverse-docs/demo/), which runs
+openverse right in your web browser.
+
 You need no mathematics beyond arithmetic, and no programming. You need a
 little patience, a pencil, and the card.
 
 Do not hurry. Each chapter builds on the one before. When a box with a
 **Rule** appears, stop and read it twice: the rules are the whole book in
 miniature, and the last pages collect them all.
+
+This book shows the part of Verse that openverse runs, and Verse is bigger
+than that. When you want the whole language, read the
+[*Book of Verse*](https://dev.epicgames.com/documentation/en-us/fortnite/verse-language-book-of-verse-reference), Epic Games' own guide to it.
+Thank you, Epic Games, for making Verse and for sharing it with everyone.
+(openverse is an independent project: Epic Games did not make it and does
+not endorse it. Verse and Fortnite are trademarks of Epic Games.)
 
 Ready? Let's go treasure hunting.
