@@ -215,6 +215,33 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
 
+  # axe-core on every page of the assembled site, at desktop and phone widths.
+  # It reports; it does not hold back the deployment (deploy needs only site).
+  accessibility:
+    needs: site
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: build/site
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install the checker and its browser
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Check accessibility (axe-core)
+        run: npm run check-a11y
+
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: site

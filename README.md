@@ -113,6 +113,10 @@ fonts.
 4. **site**: assembles the books, text playground, and simulator and checks every link;
 5. **deploy** (pushes to `main` only): force-pushes the site, as a single
    commit, to the `gh-pages` branch, which GitHub Pages serves.
+6. **accessibility**: runs axe-core (WCAG A/AA and best practices) on every
+   page of the assembled site at 1360px and 390px (`scripts/check-a11y.mjs`;
+   locally `npm ci && npm run check-a11y` after `make site`). It reports
+   violations but does not hold back the deployment.
 
 A pull request's assembled site is its `site` artifact. GitHub Pages must be
 set, once, to serve the `gh-pages` branch (Settings → Pages → Deploy from a

@@ -148,6 +148,12 @@ local function rewrite_infer(s)
   end
 end
 
+-- a wide table scrolls sideways on a phone, inside a wrapper that takes
+-- keyboard focus (book.css), like display math
+function Table(el)
+  return pandoc.Div({ el }, pandoc.Attr("", { "table-scroll" }, { tabindex = "0" }))
+end
+
 local function is_tex(el) return el.format == "tex" or el.format == "latex" end
 
 -- The books link to the published site by its full address, which is right
@@ -166,6 +172,11 @@ end
 
 function Math(el)
   el.text = rewrite_infer(expand(el.text, math_macros))
+  if el.mathtype == "DisplayMath" then
+    -- a wide formula scrolls sideways on a phone; its wrapper takes keyboard
+    -- focus so that the scrolling works without a mouse (book.css)
+    return pandoc.Span({ el }, pandoc.Attr("", { "display-math" }, { tabindex = "0" }))
+  end
   return el
 end
 
@@ -208,6 +219,6 @@ end
 
 -- Inline and block elements first, then the whole document.
 return {
-  { Math = Math, RawInline = RawInline, RawBlock = RawBlock, Link = Link },
+  { Math = Math, RawInline = RawInline, RawBlock = RawBlock, Link = Link, Table = Table },
   { Pandoc = Pandoc },
 }
