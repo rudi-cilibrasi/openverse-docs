@@ -29,6 +29,14 @@ if [[ "$demo_dist" != none ]] && ! [[ -f "$demo_dist/index.html" && -f "$demo_di
   exit 2
 fi
 
+# Which sources this site was built from, named on the landing page and in each book.
+docs_commit="$(git rev-parse HEAD)"
+if [[ -n "${OPENVERSE:-}" ]]; then
+  openverse_commit="$(git -C "$OPENVERSE" rev-parse HEAD)"
+else
+  openverse_commit="$(git rev-parse HEAD:openverse)"
+fi
+
 rm -rf "$site"
 mkdir -p "$site"
 cp site/index.html site/404.html site/style.css site/book.css site/favicon.svg "$site/"
@@ -61,6 +69,7 @@ for d in books/*/; do
     --lua-filter filters/boxes.lua --lua-filter filters/web.lua \
     --fail-if-warnings \
     -M date="$date_str" -V book="$book" \
+    -V openverse_commit="$openverse_commit" -V openverse_short="${openverse_commit:0:7}" \
     -o "$out/index.html"
 done
 
@@ -72,13 +81,6 @@ else
   demo_commit="$(git rev-parse HEAD:demo)"   # CI builds the pinned submodule
 fi
 
-# Which sources this site was built from, in the landing page's footer.
-docs_commit="$(git rev-parse HEAD)"
-if [[ -n "${OPENVERSE:-}" ]]; then
-  openverse_commit="$(git -C "$OPENVERSE" rev-parse HEAD)"
-else
-  openverse_commit="$(git rev-parse HEAD:openverse)"
-fi
 sed -i \
   -e "s/@BUILD_DATE@/$(date -u +'%Y-%m-%d')/g" \
   -e "s/@DOCS_COMMIT@/$docs_commit/g" -e "s/@DOCS_SHORT@/${docs_commit:0:7}/g" \
