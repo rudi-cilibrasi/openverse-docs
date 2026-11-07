@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<!-- Minimal Lean 4 highlighting for pandoc/skylighting (KDE format). -->
+<language name="Lean" section="Sources" version="1" kateversion="5.0" extensions="*.lean" mimetype="text/x-lean" author="promodoc" license="MIT">
+  <highlighting>
+    <list name="keywords">
+      <item>theorem</item><item>lemma</item><item>def</item><item>abbrev</item><item>inductive</item>
+      <item>structure</item><item>class</item><item>instance</item><item>mutual</item><item>end</item>
+      <item>namespace</item><item>section</item><item>variable</item><item>where</item><item>deriving</item>
+      <item>match</item><item>with</item><item>fun</item><item>let</item><item>have</item><item>show</item>
+      <item>from</item><item>by</item><item>if</item><item>then</item><item>else</item><item>do</item>
+      <item>open</item><item>import</item><item>partial</item><item>private</item><item>noncomputable</item>
+    </list>
+    <list name="tactics">
+      <item>intro</item><item>exact</item><item>cases</item><item>induction</item><item>simp</item>
+      <item>rfl</item><item>omega</item><item>constructor</item><item>obtain</item><item>refine</item>
+      <item>unfold</item><item>split</item><item>subst</item><item>rw</item><item>apply</item>
+    </list>
+    <list name="types">
+      <item>Prop</item><item>Type</item><item>Nat</item><item>Int</item><item>Bool</item>
+      <item>List</item><item>Option</item><item>Array</item><item>String</item>
+    </list>
+    <contexts>
+      <context name="Normal" attribute="Normal Text" lineEndContext="#stay">
+        <Detect2Chars attribute="Comment" context="BlockComment" char="/" char1="-"/>
+        <Detect2Chars attribute="Comment" context="LineComment" char="-" char1="-"/>
+        <keyword attribute="Keyword" context="#stay" String="keywords"/>
+        <keyword attribute="Tactic" context="#stay" String="tactics"/>
+        <keyword attribute="Data Type" context="#stay" String="types"/>
+        <DetectChar attribute="String" context="String" char="&quot;"/>
+        <RegExpr attribute="Decimal" context="#stay" String="\b[0-9]+\b"/>
+        <RegExpr attribute="Operator" context="#stay" String="[∀∃→↔∧∨¬≠≤≥∈⟨⟩]"/>
+      </context>
+      <context name="LineComment" attribute="Comment" lineEndContext="#pop"/>
+      <context name="BlockComment" attribute="Comment" lineEndContext="#stay">
+        <Detect2Chars attribute="Comment" context="#pop" char="-" char1="/"/>
+      </context>
+      <context name="String" attribute="String" lineEndContext="#pop">
+        <RegExpr attribute="String" context="#stay" String="\\."/>
+        <DetectChar attribute="String" context="#pop" char="&quot;"/>
+      </context>
+    </contexts>
+    <itemDatas>
+      <itemData name="Normal Text" defStyleNum="dsNormal"/>
+      <itemData name="Keyword" defStyleNum="dsKeyword"/>
+      <itemData name="Tactic" defStyleNum="dsFunction"/>
+      <itemData name="Data Type" defStyleNum="dsDataType"/>
+      <itemData name="Operator" defStyleNum="dsOperator"/>
+      <itemData name="Decimal" defStyleNum="dsDecVal"/>
+      <itemData name="String" defStyleNum="dsString"/>
+      <itemData name="Comment" defStyleNum="dsComment"/>
+    </itemDatas>
+  </highlighting>
+  <general>
+    <comments>
+      <comment name="singleLine" start="--"/>
+      <comment name="multiLine" start="/-" end="-/"/>
+    </comments>
+    <keywords casesensitive="1"/>
+  </general>
+</language>

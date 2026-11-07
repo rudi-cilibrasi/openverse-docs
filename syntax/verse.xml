@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<!-- Syntax highlighting for the openverse subset of Verse (pandoc/skylighting, KDE format). -->
+<language name="Verse" section="Sources" version="1" kateversion="5.0" extensions="*.verse" mimetype="text/x-verse" author="promodoc" license="MIT">
+  <highlighting>
+    <list name="keywords">
+      <item>if</item><item>then</item><item>else</item><item>for</item><item>do</item>
+      <item>loop</item><item>break</item><item>return</item><item>case</item><item>block</item>
+      <item>var</item><item>set</item><item>not</item><item>and</item><item>or</item>
+      <item>where</item><item>struct</item><item>class</item><item>interface</item><item>enum</item>
+      <item>option</item><item>logic</item><item>array</item><item>map</item><item>tuple</item>
+      <item>let</item><item>first</item><item>assert</item><item>using</item><item>import</item>
+      <item>super</item><item>Self</item><item>type</item><item>subtype</item>
+    </list>
+    <list name="types">
+      <item>int</item><item>char</item><item>char32</item><item>string</item><item>void</item>
+      <item>comparable</item>
+    </list>
+    <list name="constants">
+      <item>true</item><item>false</item>
+    </list>
+    <contexts>
+      <context name="Normal" attribute="Normal Text" lineEndContext="#stay">
+        <Detect2Chars attribute="Comment" context="BlockComment" char="&lt;" char1="#"/>
+        <DetectChar attribute="Comment" context="LineComment" char="#"/>
+        <RegExpr attribute="Attribute" context="#stay" String="&lt;[a-z_]+&gt;"/>
+        <keyword attribute="Keyword" context="#stay" String="keywords"/>
+        <keyword attribute="Data Type" context="#stay" String="types"/>
+        <keyword attribute="Constant" context="#stay" String="constants"/>
+        <DetectChar attribute="String" context="String" char="&quot;"/>
+        <RegExpr attribute="Char" context="#stay" String="'(\\.|[^'\\])'"/>
+        <RegExpr attribute="Decimal" context="#stay" String="\b(0x[0-9A-Fa-f]+|0[ou][0-9A-Fa-f]+|[0-9]+)\b"/>
+        <RegExpr attribute="Function" context="#stay" String="\b[A-Z][A-Za-z0-9_]*(?=\s*[\(\[&lt;])"/>
+      </context>
+      <context name="LineComment" attribute="Comment" lineEndContext="#pop"/>
+      <context name="BlockComment" attribute="Comment" lineEndContext="#stay">
+        <Detect2Chars attribute="Comment" context="#pop" char="#" char1="&gt;"/>
+      </context>
+      <context name="String" attribute="String" lineEndContext="#pop">
+        <RegExpr attribute="Special Char" context="#stay" String="\\."/>
+        <DetectChar attribute="Special Char" context="Interpolation" char="{"/>
+        <DetectChar attribute="String" context="#pop" char="&quot;"/>
+      </context>
+      <context name="Interpolation" attribute="Normal Text" lineEndContext="#pop">
+        <DetectChar attribute="Special Char" context="#pop" char="}"/>
+        <keyword attribute="Keyword" context="#stay" String="keywords"/>
+        <RegExpr attribute="Decimal" context="#stay" String="\b[0-9]+\b"/>
+      </context>
+    </contexts>
+    <itemDatas>
+      <itemData name="Normal Text" defStyleNum="dsNormal"/>
+      <itemData name="Keyword" defStyleNum="dsKeyword"/>
+      <itemData name="Data Type" defStyleNum="dsDataType"/>
+      <itemData name="Constant" defStyleNum="dsConstant"/>
+      <itemData name="Attribute" defStyleNum="dsAttribute"/>
+      <itemData name="Function" defStyleNum="dsFunction"/>
+      <itemData name="Decimal" defStyleNum="dsDecVal"/>
+      <itemData name="Char" defStyleNum="dsChar"/>
+      <itemData name="String" defStyleNum="dsString"/>
+      <itemData name="Special Char" defStyleNum="dsSpecialChar"/>
+      <itemData name="Comment" defStyleNum="dsComment"/>
+    </itemDatas>
+  </highlighting>
+  <general>
+    <comments>
+      <comment name="singleLine" start="#"/>
+      <comment name="multiLine" start="&lt;#" end="#&gt;"/>
+    </comments>
+    <keywords casesensitive="1"/>
+  </general>
+</language>

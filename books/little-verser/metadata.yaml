@@ -1,0 +1,27 @@
+---
+title: "The Little Verser"
+subtitle: "A friendly dialogue about Verse"
+author: "The openverse project"
+lang: en-US
+documentclass: book
+classoption:
+  - openany
+fontsize: 11pt
+papersize: letter
+geometry:
+  - textwidth=5.8in
+  - textheight=8.5in
+  - headsep=18pt
+  - footskip=30pt
+mainfont: TeX Gyre Schola
+mathfont: TeX Gyre Schola Math
+monofont: DejaVu Sans Mono
+monofontoptions:
+  - Scale=0.80
+toc: true
+toc-depth: 0
+colorlinks: true
+linkcolor: "lvaccent"
+urlcolor: "lvaccent"
+toccolor: "black"
+---
