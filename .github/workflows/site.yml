@@ -5,7 +5,8 @@
 #           Markdown editions
 #   demo    build the playground (the demo/ submodule) from source, the Lean compiler
 #           and the C runtime as WebAssembly, and run its browser tests
-#   site    put the two together and check every link of the result
+#   simulator  build and browser-test the 3D Verse toy (the sim/ submodule)
+#   site    assemble the books and both toys and check every link of the result
 #   deploy  pushes to main only: replace the gh-pages branch with the site
 #
 # Pull requests run everything but deploy; the assembled site is the "site" artifact.
@@ -76,7 +77,7 @@ jobs:
         run: make pdf
 
       - name: Build the web and Markdown editions
-        run: DEMO_DIST=none scripts/build-site.sh
+        run: DEMO_DIST=none SIM_DIST=none scripts/build-site.sh
 
       - uses: actions/upload-artifact@v7
         with:
@@ -146,8 +147,44 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
 
+  simulator:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check out the pinned simulator
+        run: git submodule update --init sim
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: sim/package-lock.json
+      - name: Install simulator dependencies and browser
+        working-directory: sim
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Browser-test the simulator
+        working-directory: sim
+        run: npm test
+      - name: Build the simulator
+        working-directory: sim
+        run: npm run build
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: simulator-test-results
+          path: sim/test-results
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v7
+        with:
+          name: simulator-dist
+          path: sim/dist
+          include-hidden-files: true
+          if-no-files-found: error
+
   site:
-    needs: [books, demo]
+    needs: [books, demo, simulator]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -162,6 +199,11 @@ jobs:
         with:
           name: demo-dist
           path: build/site/demo
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: simulator-dist
+          path: build/site/sim
 
       - name: Check every link
         run: python3 scripts/check-site.py build/site

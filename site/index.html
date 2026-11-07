@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Two books and a browser playground for Verse, as implemented by openverse: Verse Logic and The Little Verser.">
+<meta name="description" content="Learn Verse with two books and two browser playgrounds: text output in OpenVerse and an interactive 3D island in Overfort Sim.">
 <meta name="theme-color" content="#173f35">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="openverse docs">
-<meta property="og:title" content="Two books and a playground for Verse">
-<meta property="og:description" content="Verse Logic and The Little Verser, with every program checked against openverse, and a playground that runs Verse in your browser.">
+<meta property="og:title" content="Two books. Two ways to play with Verse.">
+<meta property="og:description" content="Explore the same Verse language through text output or a 3D island. Read Verse Logic and The Little Verser, then experiment in either browser playground.">
 <meta property="og:url" content="https://rudi-cilibrasi.github.io/openverse-docs/">
 <meta name="twitter:card" content="summary">
-<title>openverse docs: two books and a playground for Verse</title>
+<title>openverse docs: two books and two ways to play with Verse</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -19,7 +19,8 @@
 <header class="masthead">
   <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">v.</span> openverse <span class="brand-label">docs</span></a>
   <nav aria-label="Site">
-    <a href="demo/">Playground</a>
+    <a href="demo/">Text playground</a>
+    <a href="sim/">3D simulator</a>
     <a href="little-verser/">The Little Verser</a>
     <a href="verse-logic/">Verse Logic</a>
     <a href="https://github.com/rudi-cilibrasi/openverse">openverse <span aria-hidden="true">↗</span></a>
@@ -28,22 +29,33 @@
 
 <main>
 <section class="hero">
-  <p class="eyebrow">Read it. Prove it. Run it.</p>
-  <h1>Two books and a playground for Verse<span>.</span></h1>
+  <p class="eyebrow">Read it. Run it. Step inside it.</p>
+  <h1>Two books. Two ways to play with Verse<span>.</span></h1>
   <p class="lede"><a href="https://github.com/rudi-cilibrasi/openverse">openverse</a> is an independent
   implementation of a deterministic subset of Verse, the functional logic language
   from Epic Games. Its semantics is defined and proved in Lean 4, and a C runtime is
-  checked against it. Learn the language from the books, then try it in your browser.</p>
+  checked against it. Learn the language from the books, then explore the same ideas
+  through text output or a 3D world in your browser.</p>
 </section>
 
-<section class="cards" aria-label="The books and the playground">
+<section class="cards" aria-label="Two playgrounds and two books">
   <article class="card playground">
-    <p class="kicker">In your browser</p>
-    <h2><a href="demo/">The playground</a></h2>
-    <p>Write a Verse program and run it. The openverse compiler and runtime are compiled
+    <p class="kicker">Verse → text output</p>
+    <h2><a href="demo/">The text playground</a></h2>
+    <p>Write a Verse program and see what it prints. Try values, loops, conditions,
+    and rollback with a small editor and output panel. The openverse compiler and runtime are compiled
     to WebAssembly and run in a service worker on your own machine: your program is never
     sent to a server.</p>
-    <p class="actions"><a class="button primary" href="demo/">Open the playground <span aria-hidden="true">→</span></a></p>
+    <p class="actions"><a class="button primary" href="demo/">Try text output <span aria-hidden="true">→</span></a></p>
+  </article>
+
+  <article class="card simulator">
+    <p class="kicker">Verse → an interactive world</p>
+    <h2><a href="sim/">Overfort Sim</a></h2>
+    <p>Change Verse code to reshape a single-player 3D island. Walk, jump, interact
+    with devices, and try a course or bot range. Follow the event trace to see how
+    your actions run Verse and change the world. Maps compile and run through WebAssembly.</p>
+    <p class="actions"><a class="button primary" href="sim/">Explore the 3D island <span aria-hidden="true">→</span></a></p>
   </article>
 
   <article class="card little-verser">
@@ -76,6 +88,16 @@
   </article>
 </section>
 
+<section class="learning-contexts" aria-labelledby="same-language">
+  <h2 id="same-language">One language, two kinds of feedback</h2>
+  <p>A value such as <code>Reward:int = 100</code> can be printed in the text
+  playground with <code>Print("Reward: {Reward}")</code>, or used to award points
+  in the simulator with <code>Score(Reward)</code>. Change the value and observe
+  the result. The same ideas—values, loops, conditions, and state—carry across
+  both contexts; each toy provides its own examples and API.</p>
+  <p><a href="demo/">Start with text</a> · <a href="sim/">Step into a world</a></p>
+</section>
+
 <section class="checked">
   <h2>Checked every time this site is built</h2>
   <p>Every program in both books is run by openverse and its output compared with the
@@ -83,7 +105,8 @@
   shown; every Lean statement in <em>Verse Logic</em> must match, symbol for symbol, the
   statement Lean prints for that theorem. If the books and openverse disagree, the site
   is not published. The playground's own browser tests run the compiler and runtime
-  through real WebAssembly before each deployment.</p>
+  through real WebAssembly before each deployment. The simulator's browser tests
+  also check its compiled WASM maps, movement, interactions, and Verse reactions.</p>
   <p>In the web editions, every whole program has a <strong>▶ Run in the playground</strong>
   link: one click opens it in the editor, ready to run and change.</p>
 </section>
@@ -122,7 +145,7 @@
   documentation describes the language and these books describe openverse. Verse, Epic
   Games, Unreal, Unreal Engine, Unreal Editor for Fortnite and Fortnite are trademarks or
   registered trademarks of Epic Games, Inc. in the United States of America and elsewhere,
-  used here only to name the language and its platform. The books and the playground are
+  used here only to name the language and its platform. The books and the playgrounds are
   provided as is, without warranty of any kind.</p>
 </section>
 </main>
@@ -130,7 +153,8 @@
 <footer class="site-footer">
   <p>Built @BUILD_DATE@ from <a href="https://github.com/rudi-cilibrasi/openverse-docs/commit/@DOCS_COMMIT@">openverse-docs @DOCS_SHORT@</a>.
   Books checked against <a href="https://github.com/rudi-cilibrasi/openverse/commit/@OPENVERSE_COMMIT@">openverse @OPENVERSE_SHORT@</a>;
-  playground from <a href="https://github.com/rudi-cilibrasi/openverse-online-demo/commit/@DEMO_COMMIT@">openverse-online-demo @DEMO_SHORT@</a>.</p>
+  text playground from <a href="https://github.com/rudi-cilibrasi/openverse-online-demo/commit/@DEMO_COMMIT@">openverse-online-demo @DEMO_SHORT@</a>;
+  simulator from <a href="https://github.com/rudi-cilibrasi/openfort-sim/commit/@SIM_COMMIT@">openfort-sim @SIM_SHORT@</a>.</p>
   <p><a href="https://github.com/rudi-cilibrasi/openverse-docs">Source on GitHub</a></p>
 </footer>
 </body>

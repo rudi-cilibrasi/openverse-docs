@@ -1,8 +1,8 @@
-# openverse-docs: the openverse books and playground
+# openverse-docs: the openverse books and playgrounds
 
 Two books about Verse as implemented by
-[openverse](https://github.com/rudi-cilibrasi/openverse), and a browser
-playground that runs it, published together at **<https://rudi-cilibrasi.github.io/openverse-docs/>**.
+[openverse](https://github.com/rudi-cilibrasi/openverse), and two browser
+playgrounds that run it, published together at **<https://rudi-cilibrasi.github.io/openverse-docs/>**.
 Every program and every Lean statement in the books is checked against
 openverse each time the site is built.
 
@@ -10,7 +10,13 @@ openverse each time the site is built.
 |---|---|---|---|
 | **Verse Logic**: *Eight Theorems about a Functional Logic Language* | college and graduate students of mathematics, logic and CS | [web](https://rudi-cilibrasi.github.io/openverse-docs/verse-logic/) · [PDF](https://rudi-cilibrasi.github.io/openverse-docs/verse-logic/verse-logic.pdf) · [Markdown](https://rudi-cilibrasi.github.io/openverse-docs/verse-logic/verse-logic.md) | `books/verse-logic/` |
 | **The Little Verser**: *A friendly dialogue about Verse* | beginners; no Lean, no mathematics | [web](https://rudi-cilibrasi.github.io/openverse-docs/little-verser/) · [PDF](https://rudi-cilibrasi.github.io/openverse-docs/little-verser/little-verser.pdf) · [Markdown](https://rudi-cilibrasi.github.io/openverse-docs/little-verser/little-verser.md) | `books/little-verser/` |
-| **The playground** | anyone: write and run Verse in a browser | [open](https://rudi-cilibrasi.github.io/openverse-docs/demo/) | `demo/`, a submodule: [openverse-online-demo](https://github.com/rudi-cilibrasi/openverse-online-demo) |
+| **The text playground** | write Verse and inspect printed output | [open](https://rudi-cilibrasi.github.io/openverse-docs/demo/) | `demo/`, a submodule: [openverse-online-demo](https://github.com/rudi-cilibrasi/openverse-online-demo) |
+| **Overfort Sim** | write Verse, change a 3D island, and explore its reactions | [play](https://rudi-cilibrasi.github.io/openverse-docs/sim/) | `sim/`, a submodule: [openfort-sim](https://github.com/rudi-cilibrasi/openfort-sim) |
+
+The two toys use the same language concepts in different contexts: for example,
+print a reward value in the text playground, or use it to award points in the
+simulator. Each provides its own examples and API, with links to switch between
+them. Both compile and execute locally in the browser through WebAssembly.
 
 *Verse Logic* has one chapter per core Lean theorem of openverse
 (adequacy, determinism, rollback, `<decides>` soundness, type safety, the
@@ -26,7 +32,7 @@ proved promises in plain English.
 git clone --recurse-submodules https://github.com/rudi-cilibrasi/openverse-docs.git
 ```
 
-Two submodules are pinned to exact commits:
+Three submodules are pinned to exact commits:
 
 - `openverse/`: [rudi-cilibrasi/openverse](https://github.com/rudi-cilibrasi/openverse),
   the implementation the books are checked against. Bump it with
@@ -34,8 +40,11 @@ Two submodules are pinned to exact commits:
 - `demo/`: [rudi-cilibrasi/openverse-online-demo](https://github.com/rudi-cilibrasi/openverse-online-demo),
   the playground. It pins its own openverse and Lean in `demo/sources.json`.
   Bump it the same way.
+- `sim/`: [rudi-cilibrasi/openfort-sim](https://github.com/rudi-cilibrasi/openfort-sim),
+  the 3D island simulator. It includes pinned compiler and runtime WASM assets.
+  Build it with `cd sim && npm ci && npm run build`, then bump its pin the same way.
 
-Dependabot (`.github/dependabot.yml`) opens a pull request when either
+Dependabot (`.github/dependabot.yml`) opens a pull request when a
 submodule's repository moves, and CI decides whether the books still hold.
 
 ## Building
@@ -58,7 +67,9 @@ make OPENVERSE=/path/to/openverse check
 `make site` also needs a built playground: `demo/dist/` (see `demo/README.md`;
 building it takes Emscripten and several minutes), or another one named by
 `DEMO_DIST`. `DEMO_DIST=none scripts/build-site.sh` builds the books' part
-alone. To look at the result, serve `build/site/` over HTTP (the playground's
+alone when paired with `SIM_DIST=none`. A full site also needs `sim/dist/`
+(run `cd sim && npm ci && npm run build`) or another build named by `SIM_DIST`.
+To look at the result, serve `build/site/` over HTTP (the playground's
 service worker needs `http://localhost` or HTTPS), for example with
 `python3 -m http.server -d build/site`.
 
@@ -66,7 +77,7 @@ The website (`scripts/build-site.sh`) has, for each book, a **web edition**
 (the Markdown as one HTML page: math as MathML, made when the site is built,
 with no scripts and no third-party requests), the **PDF**, and the **Markdown
 edition** (the metadata and chapters as one file), beside a landing page
-(`site/`) and the playground. Every whole program in a web edition ends with a
+(`site/`) and both playgrounds. Every whole program in a web edition ends with a
 *Run in the playground* link (`demo/#code=…`, made by `filters/boxes.lua`) that
 opens it in the playground's editor. It fails on any pandoc warning and on any broken
 link or anchor (`scripts/check-site.py`).
@@ -98,8 +109,9 @@ fonts.
    and builds the web and Markdown editions;
 2. **demo**: builds the playground from source (the Lean compiler and the C
    runtime as WebAssembly, with cached objects) and runs its browser tests;
-3. **site**: puts the two together and checks every link;
-4. **deploy** (pushes to `main` only): force-pushes the site, as a single
+3. **simulator**: builds the pinned 3D simulator and runs its browser tests;
+4. **site**: assembles the books, text playground, and simulator and checks every link;
+5. **deploy** (pushes to `main` only): force-pushes the site, as a single
    commit, to the `gh-pages` branch, which GitHub Pages serves.
 
 A pull request's assembled site is its `site` artifact. GitHub Pages must be
@@ -174,6 +186,7 @@ tex/                         LaTeX styling: common.tex, one file per book, code.
 syntax/                      Verse and Lean highlighting for pandoc
 site/                        the landing page, the web edition's template and style
 demo/                        submodule: the playground (openverse-online-demo)
+sim/                         submodule: the 3D island simulator (openfort-sim)
 openverse/                   submodule: the openverse the books are checked against
 .github/workflows/site.yml   CI: check, build, test; deploy to GitHub Pages
 ```

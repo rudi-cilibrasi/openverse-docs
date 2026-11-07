@@ -4,3 +4,6 @@
 [submodule "openverse"]
 	path = openverse
 	url = https://github.com/rudi-cilibrasi/openverse.git
+[submodule "sim"]
+	path = sim
+	url = https://github.com/rudi-cilibrasi/openfort-sim.git

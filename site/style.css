@@ -44,14 +44,15 @@ main { max-width: 72rem; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2rem) 3rem;
 .hero h1 span { color: #8fb33a; }
 .lede { margin: 0; font-size: clamp(1.05rem, 2vw, 1.2rem); color: #2d4a42; max-width: 44rem; }
 
-.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem; }
-@media (max-width: 960px) { .cards { grid-template-columns: minmax(0, 1fr); } }
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; }
+@media (max-width: 720px) { .cards { grid-template-columns: minmax(0, 1fr); } }
 .card {
   display: flex; flex-direction: column;
   background: #fff; border: 1px solid var(--line); border-radius: 1rem;
   padding: 1.5rem 1.5rem 1.3rem; border-top: 5px solid var(--accent);
 }
 .card.playground { --accent: var(--ink); background: var(--ink); color: #eef3e4; border-color: var(--ink); }
+.card.simulator { --accent: #526b30; background: #f0f4e6; }
 .card.verse-logic { --accent: var(--vl); }
 .card.little-verser { --accent: var(--lv); }
 .kicker { margin: 0 0 0.4rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
@@ -71,7 +72,7 @@ main { max-width: 72rem; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2rem) 3rem;
 .card.playground .button.primary { background: var(--lime); border-color: var(--lime); color: var(--ink); }
 .button.primary:hover { filter: brightness(1.08); }
 
-section.checked, section.resources, section.thanks {
+section.learning-contexts, section.checked, section.resources, section.thanks {
   margin-top: 2.6rem; padding-top: 2rem; border-top: 1px solid var(--line); max-width: 52rem;
 }
 section h2 { margin: 0 0 0.7rem; font: 700 1.5rem/1.2 var(--serif); }

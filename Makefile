@@ -5,7 +5,8 @@
 #   make pdf        build/verse-logic/verse-logic.pdf, build/little-verser/little-verser.pdf
 #   make verse-logic | make little-verser    one book (check + pdf)
 #   make site       check + pdf, then the website in build/site/: web and Markdown
-#                   editions, PDFs, landing page, and the playground (DEMO_DIST=demo/dist)
+#                   editions, PDFs, landing page, text playground (DEMO_DIST=demo/dist),
+#                   and 3D simulator (SIM_DIST=sim/dist)
 #   make generate AGENT=claude BOOK=little-verser [CHAPTER=3] [TASK="..."] [MODEL=...] [DRY=1]
 #                   regenerate a book with an agent CLI (scripts/generate.sh)
 #

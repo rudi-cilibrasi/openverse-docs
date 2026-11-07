@@ -1,4 +1,4 @@
-# Keep the pins current. A submodule bump (openverse/ or demo/) is a pull request
+# Keep the pins current. A submodule bump (openverse/, demo/, or sim/) is a pull request
 # whose CI re-checks every program and Lean statement of the books against the new
 # openverse and rebuilds and browser-tests the playground; merge it when it is green.
 # Action updates come grouped (one pull request a week); each submodule bump is its own.
