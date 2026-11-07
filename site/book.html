@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="$lang$">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="$title$: $subtitle$. A book about Verse as implemented by openverse.">
+<title>$title$: $subtitle$</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../book.css">
+<style>
+$highlighting-css$
+</style>
+</head>
+<body class="book $book$">
+<header class="topbar">
+  <a class="brand" href="../"><span class="brand-mark" aria-hidden="true">v.</span> openverse <span class="brand-label">docs</span></a>
+  <nav aria-label="This book">
+    <a href="$book$.pdf">PDF</a>
+    <a href="$book$.md">Markdown</a>
+    <a href="../demo/">Playground</a>
+  </nav>
+</header>
+<div class="layout">
+<nav id="TOC" class="toc" aria-label="Contents">
+<details open>
+<summary>Contents</summary>
+$table-of-contents$
+</details>
+</nav>
+<main>
+<header class="title-block">
+<h1 class="title">$title$</h1>
+<p class="subtitle">$subtitle$</p>
+<p class="byline">$author$ · $date$</p>
+<p class="editions">This is the web edition. Also available as
+<a href="$book$.pdf">PDF</a> and as <a href="$book$.md">Markdown</a>; every
+program in it was run by openverse when this page was built.</p>
+</header>
+$body$
+<footer class="book-footer">
+<p><a href="../">openverse docs</a> · <a href="https://github.com/rudi-cilibrasi/openverse-docs/tree/main/books/$book$">Sources on GitHub</a></p>
+<p>openverse is an independent project, not affiliated with, sponsored by or
+endorsed by Epic Games. Verse, Unreal Engine and Fortnite are trademarks of
+Epic Games, Inc. <a href="../#thanks">Thanks and disclaimer</a>.</p>
+</footer>
+</main>
+</div>
+</body>
+</html>

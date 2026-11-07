@@ -29,7 +29,7 @@ for book in "${books[@]}"; do
   mkdir -p "$out"
   # chapters in file-name order: 00-preface, 01-…, then appendices A1-…
   mapfile -t parts < <(ls "$src"/*.md | sort)
-  filters=(--lua-filter filters/boxes.lua)
+  filters=(--lua-filter filters/headings.lua --lua-filter filters/boxes.lua)
   [[ -f "filters/qa.lua" ]] && filters=(--lua-filter filters/qa.lua "${filters[@]}")
   headers=(-H tex/common.tex)
   [[ -f "tex/$book.tex" ]] && headers+=(-H "tex/$book.tex")
