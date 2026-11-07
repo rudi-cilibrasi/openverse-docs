@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Assemble the website (published on GitHub Pages) in build/site/:
 #
-#   index.html, style.css, favicon.svg   the landing page (site/)
+#   index.html, style.css, favicon.svg   the landing page (site/), and 404.html
 #   book.css                             the style of the web editions
 #   <book>/index.html                    the web edition: the book as one HTML page, math in MathML
 #   <book>/<book>.pdf                    the PDF from scripts/build.sh (build it first: make pdf)
@@ -31,7 +31,7 @@ fi
 
 rm -rf "$site"
 mkdir -p "$site"
-cp site/index.html site/style.css site/book.css site/favicon.svg "$site/"
+cp site/index.html site/404.html site/style.css site/book.css site/favicon.svg "$site/"
 touch "$site/.nojekyll"   # GitHub Pages: serve the files as they are
 
 for d in books/*/; do
