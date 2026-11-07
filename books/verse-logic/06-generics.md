@@ -122,9 +122,9 @@ itself is never the type of a value, so that case is vacuous.
 
 **Subsumption.** \rulename{T-Sub} has the premise $\tau \leq \tau'$; we need
 $\theta\tau \leq \theta\tau'$. Subtyping is stable under substitution
-(`VTy.sub_subst`), by induction on the derivation of $\tau \leq \tau'$; a
-variable is below only itself, and $\theta\alpha_j \leq \theta\alpha_j$ by
-reflexivity.
+(`VTy.sub_subst`), by structural recursion on $\tau$ (subtyping is a
+Boolean function, `VTy.sub`, not an inductive relation); a variable is below
+only itself, and $\theta\alpha_j \leq \theta\alpha_j$ by reflexivity.
 
 **Calls.** The derivation ends in \rulename{T-Call} with *its own*
 substitution $\theta'$: the arguments have types $\theta'\vec{p}$ and the
@@ -159,9 +159,11 @@ composition. The class of substitutions being all functions $\mathbb{N} \to
 The proof of `Eval.typed` (Chapter 5) reaches a call of a generic function
 $f$ at instance $\theta$. The callee's body was typed once, generically,
 with slot types $\Gamma_f$ and result type $\rho_f$ mentioning variables. The
-substitution lemma retypes it with $\theta\Gamma_f$ and $\theta\rho_f$, the
-frame built from the actual arguments satisfies $\theta\Gamma_f$, and the
-induction hypothesis applies to the body at the instance. No step of the
+substitution lemma retypes it with $\theta\Gamma_f$ and $\theta\rho_f$. The
+new frame holds the actual arguments and `void` in the other slots; after
+the body's initialization prefix has run (`eval_initPrefixE`), it satisfies
+$\theta\Gamma_f$, and the induction hypothesis applies to the rest of the
+body at the instance. No step of the
 proof ever looks inside a type variable.
 
 There is one more obstacle, and it is a design problem rather than a proof

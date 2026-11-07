@@ -67,9 +67,10 @@ What remains trusted is small and explicit: Lean's kernel; the *statement* of
 the semantics, which is the definition of what Verse Core means; and the
 reading that this definition captures the language described by the Book of
 Verse. openverse also contains a C runtime, which is checked against the Lean
-interpreter by differential testing, and whose critical components are proved
-separately with the QuickProof tool; we touch on that boundary only in
-Chapter 8.
+interpreter by differential testing; some of its components (the rollback
+store for slots and output, the loader, and the integer arithmetic) are
+proved separately with the QuickProof tool, and the rest is tested. We touch on
+that boundary only in Chapter 8.
 
 ## The programs in this book are tested
 

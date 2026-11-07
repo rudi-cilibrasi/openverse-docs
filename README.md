@@ -73,6 +73,7 @@ scripts/generate.sh --agent codex --book verse-logic --dry-run
 
 # the same through make
 make generate AGENT=codex BOOK=verse-logic CHAPTER=2 TASK="Add an exercise on Runs.det"
+make generate AGENT=claude BOOK=all DRY=1      # show the commands only
 ```
 
 What the script runs (the prompt file is composed in `build/prompts/`, the

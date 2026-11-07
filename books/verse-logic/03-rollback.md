@@ -262,8 +262,8 @@ Main():void =
 
 Rollback catches *failure* only. A runtime error, such as overflow, is not a
 failure and is not caught by the `if`; it ends the program, with exit code 2.
-That is rule \rulename{Ite-Stop}, which propagates every non-failure outcome
-of the condition:
+That is rule \rulename{Ite-Stop}, which propagates every outcome of the
+condition other than success and failure:
 
 ```{.verse .run exit="2"}
 Main():void =
@@ -306,9 +306,11 @@ wrap-around (the BPVM reading; see `docs/LANGUAGE.md`).
 2. Is $\kw{not}\ (\kw{not}\ (\kw{not}\ e))$ equivalent to $\kw{not}\ e$, in the
    sense of `ite_rollback` (same outcomes and final states from every $s$)?
    Prove it or give a counterexample.
-3. State and prove the dual of law 3: if $\evalj{P}{s}{a}{\ok{v}}{s_1}$, then
-   $a\ \kw{or}_t\ b$ succeeds with $v$. What is the final state? (Careful:
-   slot $t$ has been written.)
+3. State and prove the dual of law 3: if $\evalj{P}{s}{a}{\ok{v}}{s_1}$ and
+   $\mathrm{writeSlot}\ s_1\ t\ v = \mathsf{some}\ s_2$, then
+   $a\ \kw{or}_t\ b$ succeeds with $v$ in state $s_2$. Why is the hypothesis
+   about `writeSlot` needed? (Compare `optionE_some`, and what happens when
+   $t$ is outside the frame.)
 4. Is `and` commutative? Give two expressions $a, b$ such that
    $a\ \kw{and}\ b$ and $b\ \kw{and}\ a$ have different outcomes from the same
    state, or prove that none exist. What if both are effect-free?

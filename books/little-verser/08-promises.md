@@ -146,7 +146,7 @@ Why is `trying the code` still printed?
 
 What about a program that runs forever?
 
-> openverse stops it when it runs out of steps, with exit code `3`. That is not an answer, only a time limit.
+> It never gives an answer. When a program runs too long, or a recipe calls itself too deeply, openverse gives up on it. That is a limit, not an answer.
 :::
 
 ::: {.rule title="The Rule of Errors"}

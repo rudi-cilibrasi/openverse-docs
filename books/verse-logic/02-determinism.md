@@ -63,7 +63,8 @@ says nothing about it.
   Runs P r₁ o₁ → Runs P r₂ o₂ → r₁ = r₂ ∧ o₁ = o₂
 ```
 
-The output $o$ is a `List Nat`: the bytes printed, each a number below 256.
+The output $o$ is a `List Nat`: the bytes printed (in a typed program, each
+a number below 256; the type `Nat` does not enforce it).
 The states $s_1, s_2$ in `Eval.det` include the frame *and* the heap, so
 determinism covers more than printed output: the values of all variables,
 every object, and even the addresses at which objects were allocated.
@@ -86,9 +87,12 @@ $$
 
 The side conditions $r \neq \ok{\_}$ and $r \neq \fail$ are what keep
 \rulename{Ite-Stop} from overlapping the other two. Every construct of Verse
-Core has the same pattern: one "ok" rule and one "stop" rule per
-subexpression, separated by whether the subexpression's outcome is a
-success. (In Lean the side condition is written `r.isOk = false`.)
+Core follows the same discipline: its rules are told apart by the outcome
+of the subexpression evaluated first (a success, a failure where that
+matters, or anything else), and, where a successful value can still be
+ill-shaped, by a side condition on that value (\rulename{Assign-Bad} for a
+slot outside the frame, \rulename{Call-Bad} for a missing function, …). (In
+Lean the side condition "not a success" is written `r.isOk = false`.)
 
 **Nondeterministic primitives.** A rule whose conclusion is not a function of
 its premises would break determinism even without overlaps: a rule for
@@ -167,10 +171,13 @@ of a partial function, hence deterministic. Defining an interpreter and
 proving it adequate yields determinism without a separate induction.
 :::
 
-The textbook induction is hidden, not avoided: fuel irrelevance came from
-the `Eventually` form of completeness, whose proof by induction on
-derivations does the case analysis above, rule by rule, in the guise of
-"the interpreter's clauses are mutually exclusive".
+The textbook induction is not needed at all, but its work is done
+elsewhere. Fuel irrelevance came from the `Eventually` form of completeness,
+an induction on a *single* derivation; it never compares two rules. The
+exclusivity that the textbook proof checks case by case is built into
+`eval`: a Lean function defined by pattern matching has one clause for each
+shape of input, so it cannot return two answers. Adequacy transfers that
+property from the function to the relation.
 
 `Runs.det` follows from `Eval.det`: two runs are two derivations from the
 same initial state for the same expression, $\kw{call}\ \mathit{main}\ []$,

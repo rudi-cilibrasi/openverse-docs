@@ -175,8 +175,10 @@ $\preceq$.
 
 The last case shows rollback and the frame property cooperating: the proof
 would go through even if $\mathrm{writesHeap}$ ignored conditions *in the
-\rulename{Ite-Fail} case*; it is the \rulename{Ite-Ok} case, where the
-condition's writes are committed, that forces the analysis to count them.
+\rulename{Ite-Fail} case*. What forces the analysis to count them are
+\rulename{Ite-Ok}, where success commits the condition's writes, and
+\rulename{Ite-Stop}, where a `return`, `break` or error inside the condition
+leaves the `if` without rollback, in the condition's final state.
 
 ## In code
 
@@ -269,19 +271,26 @@ Main():void =
   undoes the field writes and the constructions it made, as the opening
   program shows; this is the heap half of the transactional state of
   Chapter 3. The reference interpreter implements it by copying the heap on
-  the first write or allocation inside a context; the C runtime by an undo journal, which
-  has its own machine-checked proof (Chapter 8).
+  the first write or allocation inside a context. The C runtime rolls back
+  slots and output with the journal of `store.c`, which has a bounded
+  machine-checked proof (Chapter 8), and object writes and allocations with
+  a field log in its object store (`objects.c`), which is tested but not
+  proved.
 
 ::: {.exercise title="Exercises"}
-1. Prove that $\preceq$ is a preorder. Is it antisymmetric? (Hint: think
-   about heaps of different sizes.)
+1. Prove that $\preceq$ is a preorder. Is it antisymmetric? (Hint: which
+   part of a `Glob` does $\preceq$ not look at? Is it antisymmetric on heaps
+   alone? See `Glob.keeps.prefix`.)
 2. Write the \rulename{Heap-Ok} case of the proof for allocation in full,
    using `Array.push`. Which property of arrays do you need?
 3. Explain why $\mathrm{writesHeap}$ must count the *filter* of a `for`.
    Give a program whose filter writes a field and succeeds.
-4. Suppose a function is declared `<reads>` and calls a `<decides>` function
-   that writes a field and then fails. Is the write visible to the caller?
-   Is this consistent with the theorem? Write the program and check it.
+4. Suppose a function is declared `<reads>` and calls a `<decides>`
+   function that writes a field and then fails. Write the program and check
+   it: the front end rejects it. Semantically, the write would be rolled back
+   by the failure, so the call could not change any object. Why is it
+   rejected anyway, and what would an analysis that accepted it have to
+   know?
 5. (*) State a *non-interference* theorem for `<computes>`: two runs of a
    `<computes>` function from states that differ only in `var` fields of
    existing objects return the same outcome. What analysis would its proof

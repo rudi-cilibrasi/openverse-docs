@@ -22,9 +22,11 @@ s & ::= & \langle \mathit{fr}, \langle o, h \rangle \rangle
 \end{array}
 $$
 
-Integers satisfy $-2^{63} \leq n < 2^{63}$; `void` is $\kw{tup}\ []$; a `string`
-is an array of `char`s, each a UTF-8 code unit below 256; `false` as an empty
-option is $\kw{none}$. A heap is an array of objects, each a class tag and a
+Integers satisfy $-2^{63} \leq n < 2^{63}$ (an invariant that `Res.ofInt`
+maintains, not one the Lean type enforces); `void` is $\kw{tup}\ []$; a
+`string` is an array of `char`s, each a UTF-8 code unit (below 256 in a
+typed program: `hasTy` requires it); `false` as an empty option is
+$\kw{none}$. A heap is an array of objects, each a class tag and a
 list of field values.
 
 ## Expressions (`Syntax.lean`)
