@@ -52,7 +52,7 @@ for d in books/*/; do
   echo "== $book: web edition"
   pandoc "$src/metadata.yaml" "${parts[@]}" \
     --from markdown+fenced_divs+raw_tex+tex_math_dollars \
-    --to html5 --standalone --template site/book.html \
+    --to html5 --standalone --template site/book.html --wrap=none \
     --mathml --section-divs --number-sections \
     --toc --toc-depth "$(( ${depth:-1} + 1 ))" \
     --syntax-definition syntax/verse.xml --syntax-definition syntax/lean4.xml \
