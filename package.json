@@ -1,0 +1,12 @@
+{
+  "name": "openverse-docs",
+  "private": true,
+  "description": "Tooling for the site's accessibility check (scripts/check-a11y.mjs); the books themselves need no Node.",
+  "scripts": {
+    "check-a11y": "node scripts/check-a11y.mjs build/site"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.65.0"
+  }
+}
