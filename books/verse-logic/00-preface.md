@@ -80,13 +80,22 @@ Programs shown as *rejected* were rejected by the front end with the message
 quoted. Every Lean theorem statement was compared, symbol for symbol, with
 the statement Lean prints for it in the openverse repository, and every
 excerpt of Lean source with the source itself. If the book and openverse
-disagree, the book does not build.
+disagree, the book does not build. To run the programs yourself, paste them into
+the [openverse playground](https://rudi-cilibrasi.github.io/openverse-docs/demo/),
+which runs openverse's own compiler and runtime in a web browser.
 
 ## Acknowledgments
 
 The language is Epic Games'. openverse is an independent implementation
-written from the public *Book of Verse* and from the paper on the Verse
-Calculus by Augustsson et al. (ICFP 2023). Where the Book of Verse is silent or contradicts itself,
+written from the public [*Book of Verse*](https://dev.epicgames.com/documentation/en-us/fortnite/verse-language-book-of-verse-reference)
+and from the paper on the [Verse Calculus](https://doi.org/10.1145/3607845)
+by Augustsson et al. (ICFP 2023). Where the Book of Verse is silent or contradicts itself,
 openverse takes a reading of its own, documented in its `docs/LANGUAGE.md`;
 when this book relies on one, it says so. Verse, Unreal Engine and Fortnite
 are trademarks of Epic Games.
+
+Thank you to Epic Games for creating Verse and for publishing the Book of
+Verse for everyone to read, and to the authors of the Verse Calculus.
+openverse is not affiliated with, sponsored by or endorsed by Epic Games.
+Where this book and Epic's documentation differ about Verse, Epic's
+documentation describes the language; this book describes openverse.

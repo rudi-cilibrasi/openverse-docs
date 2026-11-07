@@ -1,4 +1,4 @@
--- promodoc — the question-and-answer layout of The Little Verser.
+-- openverse-docs — the question-and-answer layout of The Little Verser.
 --
 -- Inside a ::: qa div, every block quote is an answer, and the blocks before
 -- it (since the previous answer) are its question:

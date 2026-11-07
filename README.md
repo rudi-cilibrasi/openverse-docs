@@ -1,14 +1,16 @@
-# promodoc: the openverse books
+# openverse-docs: the openverse books and playground
 
 Two books about Verse as implemented by
-[openverse](https://github.com/rudi-cilibrasi/openverse), built into PDFs
-from Markdown, with every program and every Lean statement checked against
-openverse at build time.
+[openverse](https://github.com/rudi-cilibrasi/openverse), and a browser
+playground that runs it, published together at **<https://rudi-cilibrasi.github.io/openverse-docs/>**.
+Every program and every Lean statement in the books is checked against
+openverse each time the site is built.
 
-| Book | For | Sources | PDF |
+| | For | Read | Sources |
 |---|---|---|---|
-| **Verse Logic**: *Eight Theorems about a Functional Logic Language* | college and graduate students of mathematics, logic and CS | `books/verse-logic/` | `build/verse-logic/verse-logic.pdf` |
-| **The Little Verser**: *A friendly dialogue about Verse* | beginners; no Lean, no mathematics | `books/little-verser/` | `build/little-verser/little-verser.pdf` |
+| **Verse Logic**: *Eight Theorems about a Functional Logic Language* | college and graduate students of mathematics, logic and CS | [web](https://rudi-cilibrasi.github.io/openverse-docs/verse-logic/) · [PDF](https://rudi-cilibrasi.github.io/openverse-docs/verse-logic/verse-logic.pdf) · [Markdown](https://rudi-cilibrasi.github.io/openverse-docs/verse-logic/verse-logic.md) | `books/verse-logic/` |
+| **The Little Verser**: *A friendly dialogue about Verse* | beginners; no Lean, no mathematics | [web](https://rudi-cilibrasi.github.io/openverse-docs/little-verser/) · [PDF](https://rudi-cilibrasi.github.io/openverse-docs/little-verser/little-verser.pdf) · [Markdown](https://rudi-cilibrasi.github.io/openverse-docs/little-verser/little-verser.md) | `books/little-verser/` |
+| **The playground** | anyone: write and run Verse in a browser | [open](https://rudi-cilibrasi.github.io/openverse-docs/demo/) | `demo/`, a submodule: [openverse-online-demo](https://github.com/rudi-cilibrasi/openverse-online-demo) |
 
 *Verse Logic* has one chapter per core Lean theorem of openverse
 (adequacy, determinism, rollback, `<decides>` soundness, type safety, the
@@ -18,20 +20,51 @@ programs. *The Little Verser* teaches the same language as a question and
 answer dialogue in the manner of *The Little Lisper*, and states openverse's
 proved promises in plain English.
 
+## Getting the sources
+
+```sh
+git clone --recurse-submodules https://github.com/rudi-cilibrasi/openverse-docs.git
+```
+
+Two submodules are pinned to exact commits:
+
+- `openverse/`: [rudi-cilibrasi/openverse](https://github.com/rudi-cilibrasi/openverse),
+  the implementation the books are checked against. Bump it with
+  `git -C openverse checkout <commit> && git add openverse` once `make check` passes.
+- `demo/`: [rudi-cilibrasi/openverse-online-demo](https://github.com/rudi-cilibrasi/openverse-online-demo),
+  the playground. It pins its own openverse and Lean in `demo/sources.json`.
+  Bump it the same way.
+
 ## Building
 
 Requirements: `pandoc` (3.1 or later), `xelatex` with the TeX Gyre fonts,
 `tcolorbox`, `titlesec` and `lkproof` (all in TeX Live), DejaVu Sans Mono,
-`python3`, and a built openverse checkout next to this one
-(`../openverse`, with `lake build` done), or pointed to by `OPENVERSE`.
+`python3`, and a built openverse: the submodule (`cd openverse && lake build`)
+or a sibling checkout `../openverse`, or one named by `OPENVERSE`. On Ubuntu
+24.04 the packages are those `.github/workflows/site.yml` installs.
 
 ```sh
 make                 # check both books, then build both PDFs
 make check           # run every program, compare every output and Lean claim
 make pdf             # build/verse-logic/verse-logic.pdf, build/little-verser/little-verser.pdf
 make verse-logic     # one book: check + pdf
+make site            # check + pdf, then the whole website in build/site/
 make OPENVERSE=/path/to/openverse check
 ```
+
+`make site` also needs a built playground: `demo/dist/` (see `demo/README.md`;
+building it takes Emscripten and several minutes), or another one named by
+`DEMO_DIST`. `DEMO_DIST=none scripts/build-site.sh` builds the books' part
+alone. To look at the result, serve `build/site/` over HTTP (the playground's
+service worker needs `http://localhost` or HTTPS), for example with
+`python3 -m http.server -d build/site`.
+
+The website (`scripts/build-site.sh`) has, for each book, a **web edition**
+(the Markdown as one HTML page: math as MathML, made when the site is built,
+with no scripts and no third-party requests), the **PDF**, and the **Markdown
+edition** (the metadata and chapters as one file), beside a landing page
+(`site/`) and the playground. It fails on any pandoc warning and on any broken
+link or anchor (`scripts/check-site.py`).
 
 `make check` (`scripts/check-books.py`) fails when any of these breaks:
 
@@ -50,6 +83,23 @@ make OPENVERSE=/path/to/openverse check
 
 `scripts/build.sh` fails on LaTeX errors and on glyphs missing from the
 fonts.
+
+## Continuous integration and deployment
+
+`.github/workflows/site.yml` runs on every pull request and every push to
+`main`:
+
+1. **books**: builds the pinned openverse, runs `make check` and `make pdf`,
+   and builds the web and Markdown editions;
+2. **demo**: builds the playground from source (the Lean compiler and the C
+   runtime as WebAssembly, with cached objects) and runs its browser tests;
+3. **site**: puts the two together and checks every link;
+4. **deploy** (pushes to `main` only): force-pushes the site, as a single
+   commit, to the `gh-pages` branch, which GitHub Pages serves.
+
+A pull request's assembled site is its `site` artifact. GitHub Pages must be
+set, once, to serve the `gh-pages` branch (Settings → Pages → Deploy from a
+branch → `gh-pages`, `/ (root)`).
 
 ## Writing and regenerating with an agent
 
@@ -108,11 +158,49 @@ books/<book>/A1-*.md         appendices (the first starts with \appendix)
 prompts/                     the prompts that define the books, and the request
 scripts/check-books.py       the checker (programs, Lean claims, book rules)
 scripts/build.sh             Markdown -> LaTeX -> PDF
+scripts/build-site.sh        the website: web and Markdown editions, PDFs, landing page, playground
+scripts/check-site.py        the website's link checker
 scripts/generate.sh          run a prompt with Claude Code or Codex
+filters/headings.lua         sections of an unnumbered chapter are unnumbered (PDF and web)
 filters/qa.lua               ::: qa dialogues -> two columns (The Little Verser)
-filters/boxes.lua            ::: theorem/definition/note/exercise/rule boxes; output panels
+filters/boxes.lua            ::: theorem/definition/note/exercise/rule boxes; output panels (PDF and web)
+filters/web.lua              the web edition: tex/common.tex macros and \infer in MathML, raw LaTeX
 tex/                         LaTeX styling: common.tex, one file per book, code.theme
 syntax/                      Verse and Lean highlighting for pandoc
+site/                        the landing page, the web edition's template and style
+demo/                        submodule: the playground (openverse-online-demo)
+openverse/                   submodule: the openverse the books are checked against
+.github/workflows/site.yml   CI: check, build, test; deploy to GitHub Pages
 ```
 
-This repository is private for now.
+## More about Verse
+
+These books describe the part of Verse that openverse implements. For the
+language itself:
+
+- [The Book of Verse](https://dev.epicgames.com/documentation/en-us/fortnite/verse-language-book-of-verse-reference), Epic Games' in-depth reference to Verse
+  (also at [verselang.github.io/book](https://verselang.github.io/book/), from
+  [a public repository](https://github.com/verselang/book));
+- [Programming with Verse in Unreal Editor for Fortnite](https://dev.epicgames.com/documentation/en-us/fortnite/learn-programming-with-verse-in-unreal-editor-for-fortnite),
+  Epic's guides and tutorials;
+- [The Verse Calculus: A Core Calculus for Deterministic Functional Logic Programming](https://doi.org/10.1145/3607845),
+  Augustsson, Breitner, Claessen, Jhala, Peyton Jones, Shivers, Steele and
+  Sweeney, ICFP 2023;
+- openverse's [docs/LANGUAGE.md](https://github.com/rudi-cilibrasi/openverse/blob/main/docs/LANGUAGE.md),
+  the subset it supports.
+
+## Thanks, and a disclaimer
+
+Verse is [Epic Games](https://www.epicgames.com/)' language. Thank you to Epic
+Games for creating it and for publishing the Book of Verse for everyone to
+read, and to the authors of the Verse Calculus. openverse and these books
+build on that work.
+
+openverse is an independent project. It is not affiliated with, sponsored by
+or endorsed by Epic Games, Inc. It implements a subset of Verse and may differ
+from Epic's implementation: where they differ, Epic's documentation describes
+the language and these books describe openverse. Verse, Epic Games, Unreal,
+Unreal Engine, Unreal Editor for Fortnite and Fortnite are trademarks or
+registered trademarks of Epic Games, Inc. in the United States of America and
+elsewhere, used here only to name the language and its platform. The books and
+the playground are provided as is, without warranty of any kind.

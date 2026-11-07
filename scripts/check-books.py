@@ -157,7 +157,7 @@ def check_book(book, problems, stats):
         problems.add(book, f"{len(chapters)} numbered chapters; at most {MAX_CHAPTERS}")
     claims = load_claims()
     width = WIDTH.get(book, WIDTH["verse-logic"])
-    tmp = Path(tempfile.mkdtemp(prefix="promodoc-"))
+    tmp = Path(tempfile.mkdtemp(prefix="openverse-docs-"))
 
     for path in files:
         rel = path.relative_to(ROOT)
