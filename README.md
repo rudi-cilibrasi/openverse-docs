@@ -11,7 +11,7 @@ openverse each time the site is built.
 | **Verse Logic**: *Eight Theorems about a Functional Logic Language* | college and graduate students of mathematics, logic and CS | [web](https://rudi-cilibrasi.github.io/openverse-docs/verse-logic/) · [PDF](https://rudi-cilibrasi.github.io/openverse-docs/verse-logic/verse-logic.pdf) · [Markdown](https://rudi-cilibrasi.github.io/openverse-docs/verse-logic/verse-logic.md) | `books/verse-logic/` |
 | **The Little Verser**: *A friendly dialogue about Verse* | beginners; no Lean, no mathematics | [web](https://rudi-cilibrasi.github.io/openverse-docs/little-verser/) · [PDF](https://rudi-cilibrasi.github.io/openverse-docs/little-verser/little-verser.pdf) · [Markdown](https://rudi-cilibrasi.github.io/openverse-docs/little-verser/little-verser.md) | `books/little-verser/` |
 | **The text playground** | write Verse and inspect printed output | [open](https://rudi-cilibrasi.github.io/openverse-docs/demo/) | `demo/`, a submodule: [openverse-online-demo](https://github.com/rudi-cilibrasi/openverse-online-demo) |
-| **Overfort Sim** | write Verse, change a 3D island, and explore its reactions | [play](https://rudi-cilibrasi.github.io/openverse-docs/sim/) | `sim/`, a submodule: [openfort-sim](https://github.com/rudi-cilibrasi/openfort-sim) |
+| **Openfort Sim** | write Verse, change a 3D island, and explore its reactions | [play](https://rudi-cilibrasi.github.io/openverse-docs/sim/) | `sim/`, a submodule: [openfort-sim](https://github.com/rudi-cilibrasi/openfort-sim) |
 
 The two toys use the same language concepts in different contexts: for example,
 print a reward value in the text playground, or use it to award points in the
