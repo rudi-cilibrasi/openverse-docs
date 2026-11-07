@@ -13,7 +13,8 @@
 --     expanding the macros and reading the result with pandoc's LaTeX reader,
 --     instead of dropping it, which is what the HTML writer would do;
 --   * letters the appendices: the headings after \appendix become
---     "Appendix A. …", unnumbered.
+--     "Appendix A. …", unnumbered;
+--   * makes links into the published site relative (see Link below).
 --
 -- Run it after filters/boxes.lua (scripts/build-site.sh does).
 
@@ -149,6 +150,20 @@ end
 
 local function is_tex(el) return el.format == "tex" or el.format == "latex" end
 
+-- The books link to the published site by its full address, which is right
+-- in a PDF. In the web edition the same links are relative, so that a local or
+-- pull-request build of the site links to itself and scripts/check-site.py
+-- can check them.
+local SITE = "https://rudi-cilibrasi.github.io/openverse-docs/"
+
+function Link(el)
+  if el.target:sub(1, #SITE) == SITE then
+    el.target = "../" .. el.target:sub(#SITE + 1)
+    return el
+  end
+  return nil
+end
+
 function Math(el)
   el.text = rewrite_infer(expand(el.text, math_macros))
   return el
@@ -193,6 +208,6 @@ end
 
 -- Inline and block elements first, then the whole document.
 return {
-  { Math = Math, RawInline = RawInline, RawBlock = RawBlock },
+  { Math = Math, RawInline = RawInline, RawBlock = RawBlock, Link = Link },
   { Pandoc = Pandoc },
 }

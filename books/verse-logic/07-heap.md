@@ -264,9 +264,8 @@ Main():void =
   would need a relational (two-run) statement; it is an exercise.
 - **The frame and the output are not covered.** `var` local variables live in
   the frame and are not "the heap": a `<computes>` function may use them
-  freely. Printing is not a heap effect either (openverse accepts the
-  spec's other effect specifiers, such as `<converges>`, without checking
-  them).
+  freely. Printing is not a heap effect either (openverse accepts Verse's
+  other effect specifiers, such as `<converges>`, without checking them).
 - **Field writes, constructions and rollback.** A failed failure context
   undoes the field writes and the constructions it made, as the opening
   program shows; this is the heap half of the transactional state of
