@@ -66,7 +66,9 @@ The website (`scripts/build-site.sh`) has, for each book, a **web edition**
 (the Markdown as one HTML page: math as MathML, made when the site is built,
 with no scripts and no third-party requests), the **PDF**, and the **Markdown
 edition** (the metadata and chapters as one file), beside a landing page
-(`site/`) and the playground. It fails on any pandoc warning and on any broken
+(`site/`) and the playground. Every whole program in a web edition ends with a
+*Run in the playground* link (`demo/#code=…`, made by `filters/boxes.lua`) that
+opens it in the playground's editor. It fails on any pandoc warning and on any broken
 link or anchor (`scripts/check-site.py`).
 
 `make check` (`scripts/check-books.py`) fails when any of these breaks:
