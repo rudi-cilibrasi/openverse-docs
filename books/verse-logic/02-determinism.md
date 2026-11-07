@@ -1,0 +1,286 @@
+# One Program, One Answer
+
+## An opening problem
+
+Logic programming usually means search. A Prolog query may have many
+answers, produced in an order that depends on the search strategy, and the
+Verse Calculus, the core calculus behind Verse, has an operator of *choice*,
+$e_1 \mid e_2$, under which one expression has several values. Yet a Verse
+program run by openverse prints the same thing every time:
+
+```{.verse .run}
+Main():void =
+    Pairs := for (X := 1..3, Y := 1..3, X < Y) { X * 10 + Y }
+    for (P : Pairs) { Print("{P}") }
+```
+
+```{.output}
+12
+13
+23
+```
+
+The `for` explores a search space (all pairs with $X < Y$), but in a fixed
+order: generators left to right, each in ascending order, filters pruning as
+they go. Is this an accident of the implementation, or a property of the
+language that openverse implements? For the programmer, the question is
+whether a test that passed once will pass again, and whether the Lean
+interpreter and the C runtime *can* disagree on a correct program. For the
+logician, it is whether the relation of Chapter 1 is the graph of a partial
+function. The theorem of this chapter says that it is.
+
+## The theorem
+
+::: {.theorem title="Determinism (`Eval.det`, `Runs.det`)"}
+For every program $P$, state $s$ and expression $e$:
+$$
+\evalj{P}{s}{e}{r_1}{s_1} \ \wedge\ \evalj{P}{s}{e}{r_2}{s_2}
+\ \Longrightarrow\ r_1 = r_2 \ \wedge\ s_1 = s_2 .
+$$
+Consequently a program has at most one run:
+$$
+\Runs\ P\ r_1\ o_1 \ \wedge\ \Runs\ P\ r_2\ o_2 \ \Longrightarrow\ r_1 = r_2 \ \wedge\ o_1 = o_2 .
+$$
+:::
+
+Equivalently, with the uniqueness quantifier $\exists^{\leq 1}$ ("at most
+one"):
+$$
+\forall P\, s\, e.\ \ \exists^{\leq 1} (r, s').\ \ \evalj{P}{s}{e}{r}{s'} .
+$$
+Note "at most": a program that runs forever has *no* outcome, and the theorem
+says nothing about it.
+
+```{.lean .claim name="Eval.det"}
+@Eval.det : ∀ {P : Prog} {s : St} {e : Expr} {r₁ : Res} {s₁ : St} {r₂ : Res}
+    {s₂ : St},
+  Eval P s e r₁ s₁ → Eval P s e r₂ s₂ → r₁ = r₂ ∧ s₁ = s₂
+```
+
+```{.lean .claim name="Runs.det"}
+@Runs.det : ∀ {P : Prog} {r₁ : Res} {o₁ : List Nat} {r₂ : Res}
+    {o₂ : List Nat},
+  Runs P r₁ o₁ → Runs P r₂ o₂ → r₁ = r₂ ∧ o₁ = o₂
+```
+
+The output $o$ is a `List Nat`: the bytes printed, each a number below 256.
+The states $s_1, s_2$ in `Eval.det` include the frame *and* the heap, so
+determinism covers more than printed output: the values of all variables,
+every object, and even the addresses at which objects were allocated.
+
+## Why it could fail
+
+A relation defined by inference rules is deterministic only if the rules are
+designed for it. Two things could go wrong.
+
+**Overlapping rules.** If two rules can conclude about the same expression,
+with compatible premises, there may be two derivations with different
+outcomes. Look again at the three `ite` rules of Chapter 1. Their first
+premises are about the same condition $c$, from the same state $s$, with
+outcomes $\ok{v}$, $\fail$, and "anything else":
+
+$$
+\infer[\rulename{Ite-Stop}]{\evalj{P}{s}{\kw{ite}\ c\ t\ e}{r}{s_1}}
+      {\evalj{P}{s}{c}{r}{s_1} & r \neq \ok{\_} & r \neq \fail}
+$$
+
+The side conditions $r \neq \ok{\_}$ and $r \neq \fail$ are what keep
+\rulename{Ite-Stop} from overlapping the other two. Every construct of Verse
+Core has the same pattern: one "ok" rule and one "stop" rule per
+subexpression, separated by whether the subexpression's outcome is a
+success. (In Lean the side condition is written `r.isOk = false`.)
+
+**Nondeterministic primitives.** A rule whose conclusion is not a function of
+its premises would break determinism even without overlaps: a rule for
+choice, say, with conclusions $\ok{v_1}$ and $\ok{v_2}$ for $e_1 \mid e_2$, or
+an allocation rule that picks *some* fresh address. openverse has neither.
+`choice` is not in the supported subset, nor is concurrency (`spawn`, `race`,
+`sync`); and allocation takes the *next* address, the current size of the
+heap:
+
+```{.lean .excerpt file="OpenVerse/Core/Semantics.lean"}
+  | .new t, vs, ⟨out, heap⟩ =>
+      (.ok (.ref heap.size), ⟨out, heap.push ⟨t, vs⟩⟩)
+```
+
+Primitive operations are functions too (`Prim.apply`, `HeapOp.apply`), so
+each rule's conclusion is determined by its premises.
+
+## The proof
+
+There are two proofs, and it is instructive to see both.
+
+**The textbook proof** is by induction on the first derivation, inverting the
+second. Suppose $\mathcal{D}_1$ derives $\evalj{P}{s}{e}{r_1}{s_1}$ and
+$\mathcal{D}_2$ derives $\evalj{P}{s}{e}{r_2}{s_2}$; we show $r_1 = r_2$ and
+$s_1 = s_2$ by induction on $\mathcal{D}_1$. The last rule of $\mathcal{D}_2$
+must be a rule for the same construct. Take $e = \kw{ite}\ c\ t\ e'$ and
+$\mathcal{D}_1$ ending in \rulename{Ite-Ok}, with premises
+$\evalj{P}{s}{c}{\ok{v}}{s'_1}$ and $\evalj{P}{s'_1}{t}{r_1}{s_1}$.
+
+- If $\mathcal{D}_2$ ends in \rulename{Ite-Fail}, its first premise is
+  $\evalj{P}{s}{c}{\fail}{s''}$. The induction hypothesis for the first
+  premise of $\mathcal{D}_1$ gives $\ok{v} = \fail$: impossible.
+- If $\mathcal{D}_2$ ends in \rulename{Ite-Stop}, its first premise gives an
+  outcome $r \neq \ok{\_}$; again the hypothesis gives $\ok{v} = r$, a
+  contradiction.
+- If $\mathcal{D}_2$ ends in \rulename{Ite-Ok}, with premises
+  $\evalj{P}{s}{c}{\ok{v'}}{s''}$ and $\evalj{P}{s''}{t}{r_2}{s_2}$, the
+  hypothesis gives $v = v'$ and $s'_1 = s''$; so the second premises start in
+  the same state, and the hypothesis for them gives $r_1 = r_2$ and
+  $s_1 = s_2$.
+
+Every case of every construct is like one of these: an "ok" rule against a
+"stop" rule is a contradiction through the side condition, and two rules of
+the same kind agree by the hypotheses applied left to right, each premise
+starting where the previous one ended. For `call`, the hypothesis for the
+argument list gives the same arguments, hence the same callee and frame,
+and the hypothesis for the body gives the same result.
+
+**openverse's proof** is three lines long, because Chapter 1 already did the
+work:
+
+```{.lean .excerpt file="OpenVerse/Core/Adequacy.lean"}
+theorem Eval.det {P : Prog} {s e r₁ s₁ r₂ s₂}
+    (h₁ : Eval P s e r₁ s₁) (h₂ : Eval P s e r₂ s₂) :
+    r₁ = r₂ ∧ s₁ = s₂ := by
+  obtain ⟨n₁, H₁⟩ := eval_iff.mp h₁
+  obtain ⟨n₂, H₂⟩ := eval_iff.mp h₂
+  have := eval_fuel_irrelevant H₁ H₂
+  simp only [Prod.mk.injEq] at this
+  exact this
+```
+
+In words: by adequacy, the interpreter returns $(r_1, s_1)$ at some fuel
+$n_1$ and $(r_2, s_2)$ at some fuel $n_2$; by fuel irrelevance these results
+are equal; equality of pairs is equality of components. The `obtain` lines
+destructure the existentials that `eval_iff.mp` (the left-to-right direction
+of the biconditional) produces.
+
+The logic behind the short proof is worth stating as a principle.
+
+::: {.note title="Determinism for free"}
+If a relation $R \subseteq A \times B$ satisfies
+$R\,a\,b \iff \exists n.\ f\ n\ a = \mathsf{some}\ b$ for a family of partial
+functions $f\ n$ that agree wherever they are defined, then $R$ is the graph
+of a partial function, hence deterministic. Defining an interpreter and
+proving it adequate yields determinism without a separate induction.
+:::
+
+The textbook induction is hidden, not avoided: fuel irrelevance came from
+the `Eventually` form of completeness, whose proof by induction on
+derivations does the case analysis above, rule by rule, in the guise of
+"the interpreter's clauses are mutually exclusive".
+
+`Runs.det` follows from `Eval.det`: two runs are two derivations from the
+same initial state for the same expression, $\kw{call}\ \mathit{main}\ []$,
+so their final states are equal, hence so are their outputs
+(`congrArg (fun s : St => s.g.out)`).
+
+## In code
+
+Determinism is what makes the order of a `for` meaningful. Generators run
+left to right, the leftmost slowest, like nested loops; the result array
+lists the body's values in that order, as in the opening program.
+
+Maps iterate in insertion order. Updating a key keeps its place; a new key
+goes at the end:
+
+```{.verse .run}
+Main():void =
+    var Loot:[string]int = map{"ruby" => 3, "coin" => 50}
+    set Loot["amber"] = 7
+    set Loot["ruby"] = 4
+    for (Name -> Count : Loot) { Print("{Name}: {Count}") }
+```
+
+```{.output}
+ruby: 4
+coin: 50
+amber: 7
+```
+
+In Verse Core a map is simply the array of its key-value pairs, so map
+iteration inherits the determinism of array iteration. (This is also why
+openverse's map equality is order-sensitive, a reading documented in its
+`LANGUAGE.md`.)
+
+Allocation is deterministic too, and identity is observable. Instances of a
+`<unique>` class compare by identity, so two objects with equal fields
+differ:
+
+```{.verse .run}
+gem := class<unique>:
+    Name:string
+
+Main():void =
+    A := gem{Name := "opal"}
+    B := gem{Name := "opal"}
+    if (A = B) then Print("same gem") else Print("two gems")
+    if (A = A) then Print("A is A") else Print("?")
+```
+
+```{.output}
+two gems
+A is A
+```
+
+Here `A` and `B` are references $\kw{ref}\ a$ and $\kw{ref}\ b$ to the objects
+allocated at addresses $a$ and $b = a + 1$, the sizes of the heap at the two
+allocations. A semantics that allocated at an arbitrary fresh address would
+still give `two gems` (the addresses differ either way) but would not be
+deterministic in the sense of `Eval.det`, because the final states would
+differ in their addresses. Such a semantics would need determinism *up to
+renaming of addresses*, a weaker and much harder theorem.
+
+Finally, determinism is what makes openverse's testing strategy sound. Its C
+interpreter is compared with the Lean interpreter on every test program and
+on random programs, byte for byte, output and exit code. Without
+determinism, a disagreement would not show a bug: both could be right.
+
+## Limits and readings
+
+- **The subset is deterministic; Verse is not.** Full Verse has choice and
+  concurrency. The theorem is about openverse's subset, and it is one reason
+  for choosing that subset: the Verse Calculus paper itself studies how to
+  keep choice deterministic by fixing the order of results, a more
+  delicate property than ours.
+- **At most one, not exactly one.** `Eval.det` gives uniqueness, not
+  existence. A diverging program has no outcome; Chapter 1 explained why
+  that is the only way to have none.
+- **The C runtime is deterministic by testing.** Lean proves determinism of
+  the definition and the reference interpreter. The C interpreter is a
+  transcription checked by differential testing, under sanitizers. Its
+  rollback store and loader have separate machine-checked proofs (Chapter 8).
+- **Readings.** Several of the orders above are openverse's choices where the
+  Book of Verse is silent: output inside a failed failure context is rolled
+  back, a failing `for` body makes the whole `for` fail (as in the Verse
+  Calculus), and maps compare in order. Determinism holds *given* these
+  readings, which the rules fix.
+
+::: {.exercise title="Exercises"}
+1. Remove the side condition $r \neq \fail$ from \rulename{Ite-Stop}. Give a
+   Verse Core expression with two derivations and different outcomes.
+2. Prove `Runs.det` from `Eval.det` on paper, using the definition of
+   $\Runs$ from Chapter 1. Where is the output in the final state?
+3. Write the textbook proof's case for $\kw{seq}$ in full: \rulename{Seq-Ok}
+   against \rulename{Seq-Ok}, and \rulename{Seq-Ok} against
+   \rulename{Seq-Stop}.
+4. Predict the output, then run it:
+   ```{.verse .check}
+   Main():void =
+       for (X := 1..2, Y := 1..2) { Print("{X}{Y}") }
+   ```
+   Which generator varies fastest? How would you get the other order?
+5. (*) Suppose allocation chose an arbitrary address not in use. State a
+   determinism theorem "up to renaming of heap addresses" in the notation of
+   this chapter. Which rules would its proof have to treat specially?
+6. Prove the principle *Determinism for free* in Lean:
+   ```{.lean .fragment}
+   theorem det_of_graph {α β} (R : α → β → Prop) (f : Nat → α → Option β)
+       (hR : ∀ a b, R a b ↔ ∃ n, f n a = some b)
+       (hf : ∀ n₁ n₂ a b₁ b₂, f n₁ a = some b₁ → f n₂ a = some b₂ → b₁ = b₂) :
+       ∀ a b₁ b₂, R a b₁ → R a b₂ → b₁ = b₂ := by
+     sorry
+   ```
+:::

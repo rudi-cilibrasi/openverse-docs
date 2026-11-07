@@ -1,0 +1,55 @@
+% promodoc — Verse Logic: styling (included after tex/common.tex).
+
+\definecolor{vlblue}{HTML}{1F4E8C}
+\definecolor{vlgray}{HTML}{6B6B6B}
+
+% Chapter openings: number, title, and the chapter's theorem in small caps.
+\titleformat{\chapter}[display]
+  {\normalfont\sffamily}
+  {\color{vlblue}\large\scshape Chapter \thechapter}
+  {4pt}
+  {\Huge\bfseries}
+  [\vspace{2pt}{\color{vlblue}\titlerule[0.8pt]}]
+\titleformat{name=\chapter,numberless}[display]
+  {\normalfont\sffamily}{}{0pt}{\Huge\bfseries}[\vspace{2pt}{\color{vlblue}\titlerule[0.8pt]}]
+\titlespacing*{\chapter}{0pt}{20pt}{24pt}
+\titleformat{\section}{\normalfont\sffamily\Large\bfseries}{\color{vlblue}\thesection}{0.8em}{}
+\titleformat{\subsection}{\normalfont\sffamily\large\bfseries}{\color{vlblue}\thesubsection}{0.8em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\small\sffamily\color{vlgray}\leftmark}
+\fancyhead[RO]{\small\sffamily\color{vlgray}\rightmark}
+\fancyfoot[C]{\small\sffamily\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+
+% The "core theorem" box of each chapter is ::: theorem, rendered by boxtheorem.
+% Inference rules are typeset with proof.sty: \infer[\rulename{Name}]{concl}{prem & prem}.
+
+\makeatletter
+\renewcommand{\maketitle}{%
+  \begin{titlepage}
+    \centering
+    \vspace*{0.18\textheight}
+    {\sffamily\color{vlblue}\fontsize{40}{46}\selectfont\bfseries Verse Logic\par}
+    \vspace{14pt}
+    {\color{vlblue}\rule{0.55\textwidth}{0.8pt}\par}
+    \vspace{14pt}
+    {\Large Eight Theorems about a Functional Logic Language\par}
+    \vspace{8pt}
+    {\large\itshape Failure, rollback, determinism and types,\\ proved in Lean for openverse\par}
+    \vspace{0.12\textheight}
+    {\[
+      \infer[\rulename{Ite-Fail}]
+        {\evalj{P}{s}{\kw{if}\ c\ \kw{then}\ t\ \kw{else}\ e}{r}{s'}}
+        {\evalj{P}{s}{c}{\fail}{s_1} & \evalj{P}{s}{e}{r}{s'}}
+    \]\par}
+    \vfill
+    {\large\sffamily The openverse project\par}
+    \vspace{4pt}
+    {\small\sffamily\color{vlgray}\@date\par}
+  \end{titlepage}%
+}
+\makeatother

@@ -1,0 +1,29 @@
+---
+title: "Verse Logic"
+subtitle: "Eight Theorems about a Functional Logic Language"
+author: "The openverse project"
+lang: en-US
+documentclass: book
+classoption:
+  - openany
+fontsize: 11pt
+papersize: letter
+geometry:
+  - textwidth=5.6in
+  - textheight=8.4in
+  - headsep=18pt
+  - footskip=30pt
+mainfont: TeX Gyre Pagella
+mathfont: TeX Gyre Pagella Math
+monofont: DejaVu Sans Mono
+monofontoptions:
+  - Scale=0.82
+sansfont: TeX Gyre Heros
+toc: true
+toc-depth: 1
+colorlinks: true
+linkcolor: "vlblue"
+urlcolor: "vlblue"
+toccolor: "black"
+linestretch: 1.08
+---
