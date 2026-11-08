@@ -166,9 +166,10 @@ is used. The call of an override in a class with pins goes further, and
 looks at the types themselves: it is typed under a *refinement*
 $\mu$, the most general substitution that makes the receiver's type
 arguments agree with the pins (`int` for `box(t)`'s `t`). After $\theta$,
-either some substitution still makes them agree, and then every such
-substitution $R$ satisfies $R \circ \mu = R$ (`PinRefines.factor`: $\mu$
-is most general), which carries the typing over to the instance's own
+either some $\rho'$ makes the instance agree, so that $\rho' \circ \theta$
+makes the original arguments agree and therefore factors through the most
+general one, $(\rho' \circ \theta) \circ \mu = \rho' \circ \theta$
+(`PinRefines.factor`), which carries the typing over to the instance's own
 refinement; or none does, and the call is typed as unreachable
 (`Typed.dispatch_none`), as it then is at every instance.
 
