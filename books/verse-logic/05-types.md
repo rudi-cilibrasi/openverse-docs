@@ -104,7 +104,7 @@ def hasTy (Ξ : HeapTy) : Value → VTy → Bool
 A heap $h$ is **well typed** under $\Xi$, written $\mathrm{HeapOK}\ S\ \Xi\ h$,
 when $\Xi$ has one entry per object, and each object's fields have the types
 that its class declares in the signature $S$, instantiated at its type
-arguments. A frame is well typed, $\mathrm{FrameOK}\ \Xi\ \Gamma\ \mathit{fr}$,
+arguments (which agree with any its class fixes, as Chapter 6 explains). A frame is well typed, $\mathrm{FrameOK}\ \Xi\ \Gamma\ \mathit{fr}$,
 when slot $i$ holds a value of type $\Gamma_i$.
 
 ## The typing judgment

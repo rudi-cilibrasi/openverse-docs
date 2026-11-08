@@ -78,8 +78,9 @@ empty option type ${?}\alpha_j$.
 ## The theorem
 
 ::: {.theorem title="The substitution lemma (`Typed.subst`)"}
-If the prototype objects of $S$ have closed type arguments
-($\mathrm{ClosedProtos}\ S$), then for every substitution $\theta$:
+If the signatures $S$ are closed ($\mathrm{Closed}\ S$: the prototype
+objects' type arguments are closed, and so are the types that classes fix
+their type arguments to), then for every substitution $\theta$:
 $$
 S;\Gamma;\rho \vdash e : \tau \ \Longrightarrow\
 S;\theta\Gamma;\theta\rho \vdash e : \theta\tau .
@@ -88,7 +89,7 @@ $$
 
 ```{.lean .claim name="Typed.subst"}
 @Typed.subst : ∀ {S : Sigs} {Γ : List VTy} {ρ : VTy},
-  S.ClosedProtos →
+  S.Closed →
     ∀ (θ : Nat → VTy) {e : Expr} {τ : VTy},
       Typed S Γ ρ e τ →
         Typed S (List.map (VTy.subst θ) Γ) (VTy.subst θ ρ) e (VTy.subst θ τ)
@@ -99,18 +100,22 @@ re-elaborated. A typing derivation with variables is a proof schema, and
 every instance of the schema is a proof. That is the logical content of
 "checked once".
 
-The hypothesis $\mathrm{ClosedProtos}$ looks technical, and it is: literals
-in Verse Core may be references to the prototype objects that exist before
-`Main` (Chapter 5), and their types must not mention variables, or a literal
-typed at $\alpha_j$-dependent arguments could not be retyped. The front end
-always satisfies it.
+The hypothesis $\mathrm{Closed}$ looks technical, and it is. It has two
+halves. $\mathrm{ClosedProtos}$: literals in Verse Core may be references to
+the prototype objects that exist before `Main` (Chapter 5), and their types
+must not mention variables, or a literal typed at $\alpha_j$-dependent
+arguments could not be retyped. $\mathrm{ClosedPins}$: a class may fix its
+parent's type arguments, as `int_box := class(box(int))` fixes `box`'s to
+`int`; $S$ records these *pins*, and they must be closed types. The front end
+always satisfies both.
 
 ## The proof
 
 By induction on the typing derivation, mutually with the lemma for lists of
 expressions (`TypedL.subst`). Most cases rebuild the same rule from the
 induction hypotheses, because the rules are *uniform* in the types: they
-never inspect whether a type is a variable. Three cases need a lemma.
+never inspect whether a type is a variable. Three cases need a lemma, and
+the classes that fix type arguments need an argument of their own.
 
 **Literals.** \rulename{T-Lit} has the premise $\mathrm{hasTy}\ S.\mathit{protos}\
 v\ \tau$. We need $\mathrm{hasTy}\ S.\mathit{protos}\ v\ (\theta\tau)$: typing of
@@ -153,6 +158,19 @@ This case is why the rule \rulename{T-Call} quantifies over *every* $\theta$,
 rather than fixing one per call site: the set of typings must be closed under
 composition. The class of substitutions being all functions $\mathbb{N} \to
 \mathrm{VTy}$ makes it so.
+
+**Pins.** Creating an object requires its type arguments to agree with its
+class's pins. The pins are closed, so $\theta$ leaves them alone and the
+agreement survives (`VTy.pinsOK_subst`); that is where $\mathrm{ClosedPins}$
+is used. The call of an override in a class with pins goes further, and
+looks at the types themselves: it is typed under a *refinement*
+$\mu$, the most general substitution that makes the receiver's type
+arguments agree with the pins (`int` for `box(t)`'s `t`). After $\theta$,
+either some substitution still makes them agree, and then every such
+substitution $R$ satisfies $R \circ \mu = R$ (`PinRefines.factor`: $\mu$
+is most general), which carries the typing over to the instance's own
+refinement; or none does, and the call is typed as unreachable
+(`Typed.dispatch_none`), as it then is at every instance.
 
 ## How type safety uses it
 
