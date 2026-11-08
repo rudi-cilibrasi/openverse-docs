@@ -197,6 +197,23 @@ Which value is `Coins`, and which is `Gems`?
 
 > They go in order: `Coins` is `5`, `Gems` is `2`.
 
+Can we hand `Score` a tuple instead?
+
+```{.verse .run}
+Score(Coins:int, Gems:int):int =
+    Coins + Gems * 10
+
+Main():void =
+    Loot := (5, 2)
+    Print("{Score(Loot)}")
+```
+
+> ```{.output}
+> 25
+> ```
+>
+> Yes. A tuple's parts fill the parameters in order.
+
 Why is the body of `Score` on its own line?
 
 > It could be on the first line too. When a body is long, we indent it under the `=`.
