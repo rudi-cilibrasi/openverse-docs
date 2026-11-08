@@ -275,7 +275,9 @@ interleave the same way on every run. None of this is new to Verse Core: the
 front end compiles `Worker` into a frame object and a function that resumes
 it from one wait to the next, and the scheduler is a helper written in Verse
 (`docs/DESIGN.md`). The whole program is an ordinary Core program, and
-`Eval.det` applies to it as it is.
+`Eval.det` applies to it as it is. (That the lowering keeps the meaning of
+the surface program is tested, not proved, like the rest of the front end:
+Chapter 8.)
 
 Finally, determinism is what makes openverse's testing strategy sound. Its C
 interpreter is compared with the Lean interpreter on every test program and
