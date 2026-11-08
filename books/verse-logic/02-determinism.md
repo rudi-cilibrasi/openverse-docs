@@ -98,9 +98,10 @@ Lean the side condition "not a success" is written `r.isOk = false`.)
 its premises would break determinism even without overlaps: a rule for
 choice, say, with conclusions $\ok{v_1}$ and $\ok{v_2}$ for $e_1 \mid e_2$, or
 an allocation rule that picks *some* fresh address. openverse has neither.
-`choice` is not in the supported subset, nor is concurrency (`spawn`, `race`,
-`sync`); and allocation takes the *next* address, the current size of the
-heap:
+`choice` is not in the supported subset. Concurrency is (`spawn`, `race`,
+`sync`, `Sleep`), but it adds no rule to Verse Core: the front end compiles it
+into ordinary Core code, as the next section shows. And allocation takes the
+*next* address, the current size of the heap:
 
 ```{.lean .excerpt file="OpenVerse/Core/Semantics.lean"}
   | .new t, vs, ⟨out, heap⟩ =>
@@ -240,6 +241,42 @@ deterministic in the sense of `Eval.det`, because the final states would
 differ in their addresses. Such a semantics would need determinism *up to
 renaming of addresses*, a weaker and much harder theorem.
 
+Concurrent programs are deterministic for the same reason. Here two calls
+of `Worker` run as the arms of a `sync`:
+
+```{.verse .run}
+Worker(Name:string, Steps:int)<suspends>:void =
+    var I:int = 0
+    loop:
+        if (I >= Steps) then break
+        Print("{Name} {I}")
+        Sleep(0.0)
+        set I += 1
+
+Main()<suspends>:void =
+    sync:
+        Worker("a", 2)
+        Worker("b", 3)
+    Print("both done")
+```
+
+```{.output}
+a 0
+b 0
+a 1
+b 1
+b 2
+both done
+```
+
+Each arm runs until it waits. `Sleep(0.0)` waits for the next tick of a
+virtual clock, and in each tick the arms go on in source order, so the lines
+interleave the same way on every run. None of this is new to Verse Core: the
+front end compiles `Worker` into a frame object and a function that resumes
+it from one wait to the next, and the scheduler is a helper written in Verse
+(`docs/DESIGN.md`). The whole program is an ordinary Core program, and
+`Eval.det` applies to it as it is.
+
 Finally, determinism is what makes openverse's testing strategy sound. Its C
 interpreter is compared with the Lean interpreter on every test program and
 on random programs, byte for byte, output and exit code. Without
@@ -247,11 +284,13 @@ determinism, a disagreement would not show a bug: both could be right.
 
 ## Limits and readings
 
-- **The subset is deterministic; Verse is not.** Full Verse has choice and
-  concurrency. The theorem is about openverse's subset, and it is one reason
-  for choosing that subset: the Verse Calculus paper itself studies how to
-  keep choice deterministic by fixing the order of results, a more
-  delicate property than ours.
+- **The subset is deterministic; Verse is not.** Full Verse has choice. The
+  theorem is about openverse's subset, and it is one reason for choosing
+  that subset: the Verse Calculus paper itself studies how to keep choice
+  deterministic by fixing the order of results, a more delicate property
+  than ours. openverse's concurrency is deterministic by construction: it
+  fixes the order in which tasks go on and counts time in ticks
+  (`docs/LANGUAGE.md`).
 - **At most one, not exactly one.** `Eval.det` gives uniqueness, not
   existence. A diverging program has no outcome; Chapter 1 explained why
   that is the only way to have none.
