@@ -347,6 +347,15 @@ in a failure context.)
   in Verse Core (an enum and an `int`, say) is rejected by the front end, a
   reading documented in `docs/LANGUAGE.md`; the Core rule types `=` at the
   type of its left operand.
+- **Types the front end lowers.** `rational`, `any` and refinement types
+  (`type{_X:int where 0 <= _X, _X <= 120}`) have no Verse Core type of their
+  own: a rational is the tuple of its numerator and denominator in lowest
+  terms, an `any` is `void`, and a refined `int` or `float` is just its base,
+  with the cast `age[X]` a comparison that may fail. The theorem covers these
+  Core images. That a refined value stays within its bounds, or that a
+  rational stays in lowest terms, is the front end's business: tested, not
+  proved. (`float` is different: it is a Core type, with its own case in
+  $\mathrm{hasTy}$.)
 
 ::: {.exercise title="Exercises"}
 1. Prove `hasTy_sub` for the option case on paper.
