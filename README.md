@@ -64,12 +64,11 @@ make site            # check + pdf, then the whole website in build/site/
 make OPENVERSE=/path/to/openverse check
 ```
 
-`make site` also needs a built playground: `demo/dist/` (see `demo/README.md`;
-building it takes Emscripten and several minutes), or another one named by
-`DEMO_DIST`. `DEMO_DIST=none scripts/build-site.sh` builds the books' part
-alone when paired with `SIM_DIST=none`. A full site also needs `sim/dist/`
-(run `cd sim && npm ci && npm run build`) or another build named by `SIM_DIST`.
-To look at the result, serve `build/site/` over HTTP (the playground's
+`make site` also needs both playgrounds built: `demo/dist/` (see `demo/README.md`;
+building it takes Emscripten and several minutes) and `sim/dist/`
+(`cd sim && npm ci && npm run build`), or other builds named by `DEMO_DIST` and
+`SIM_DIST`. `DEMO_DIST=none SIM_DIST=none scripts/build-site.sh` builds the
+books' part alone. To look at the result, serve `build/site/` over HTTP (the playground's
 service worker needs `http://localhost` or HTTPS), for example with
 `python3 -m http.server -d build/site`.
 
@@ -179,8 +178,9 @@ books/<book>/A1-*.md         appendices (the first starts with \appendix)
 prompts/                     the prompts that define the books, and the request
 scripts/check-books.py       the checker (programs, Lean claims, book rules)
 scripts/build.sh             Markdown -> LaTeX -> PDF
-scripts/build-site.sh        the website: web and Markdown editions, PDFs, landing page, playground
+scripts/build-site.sh        the website: web and Markdown editions, PDFs, landing page, both playgrounds
 scripts/check-site.py        the website's link checker
+scripts/check-a11y.mjs       the accessibility check (axe-core at two widths; package.json has its tools)
 scripts/generate.sh          run a prompt with Claude Code or Codex
 filters/headings.lua         sections of an unnumbered chapter are unnumbered (PDF and web)
 filters/qa.lua               ::: qa dialogues -> two columns (The Little Verser)
@@ -193,6 +193,7 @@ demo/                        submodule: the playground (openverse-online-demo)
 sim/                         submodule: the 3D island simulator (openfort-sim)
 openverse/                   submodule: the openverse the books are checked against
 .github/workflows/site.yml   CI: check, build, test; deploy to GitHub Pages
+.github/dependabot.yml       daily submodule bumps, weekly action and npm updates
 ```
 
 ## More about Verse
