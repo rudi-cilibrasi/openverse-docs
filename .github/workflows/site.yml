@@ -6,6 +6,7 @@
 #   demo    build the playground (the demo/ submodule) from source, the Lean compiler
 #           and the C runtime as WebAssembly, and run its browser tests
 #   simulator  build and browser-test the 3D Verse toy (the sim/ submodule)
+#           (each toy is built and tested once per pin; later runs reuse its dist/)
 #   site    assemble the books and both toys and check every link of the result
 #   deploy  pushes to main only: replace the gh-pages branch with the site
 #
@@ -98,9 +99,19 @@ jobs:
           git submodule update --init demo
           echo "demo=$(git rev-parse HEAD:demo)" >> "$GITHUB_OUTPUT"
 
+      # A cache is saved only when its job succeeds, so a hit means an earlier run
+      # built and browser-tested this exact pin: reuse its dist/ and skip the rest.
+      - name: Reuse the playground built for this pin
+        id: built
+        uses: actions/cache@v6
+        with:
+          path: demo/dist
+          key: demo-dist-${{ runner.os }}-${{ steps.pin.outputs.demo }}
+
       # The playground's object cache is content-addressed, so an older cache is
       # still useful after the pin moves: only changed sources are recompiled.
       - name: Cache elan, the Lean build and the WebAssembly objects
+        if: steps.built.outputs.cache-hit != 'true'
         uses: actions/cache@v6
         with:
           path: |
@@ -112,21 +123,25 @@ jobs:
             demo-${{ runner.os }}-
 
       - name: Install the playground's build tools
+        if: steps.built.outputs.cache-hit != 'true'
         run: |
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
           PATH="$HOME/.elan/bin:$PATH" demo/scripts/install-deps.sh
 
       - name: Build the playground
+        if: steps.built.outputs.cache-hit != 'true'
         working-directory: demo
         run: scripts/build.sh
 
       - uses: actions/setup-node@v7
+        if: steps.built.outputs.cache-hit != 'true'
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: demo/package-lock.json
 
       - name: Browser tests
+        if: steps.built.outputs.cache-hit != 'true'
         working-directory: demo
         run: |
           npm ci
@@ -153,21 +168,35 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Check out the pinned simulator
-        run: git submodule update --init sim
+        id: pin
+        run: |
+          git submodule update --init sim
+          echo "sim=$(git rev-parse HEAD:sim)" >> "$GITHUB_OUTPUT"
+      # As for the playground: a hit means this exact pin was built and tested.
+      - name: Reuse the simulator built for this pin
+        id: built
+        uses: actions/cache@v6
+        with:
+          path: sim/dist
+          key: sim-dist-${{ runner.os }}-${{ steps.pin.outputs.sim }}
       - uses: actions/setup-node@v7
+        if: steps.built.outputs.cache-hit != 'true'
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: sim/package-lock.json
       - name: Install simulator dependencies and browser
+        if: steps.built.outputs.cache-hit != 'true'
         working-directory: sim
         run: |
           npm ci
           npx playwright install --with-deps chromium
       - name: Browser-test the simulator
+        if: steps.built.outputs.cache-hit != 'true'
         working-directory: sim
         run: npm test
       - name: Build the simulator
+        if: steps.built.outputs.cache-hit != 'true'
         working-directory: sim
         run: npm run build
       - uses: actions/upload-artifact@v7
