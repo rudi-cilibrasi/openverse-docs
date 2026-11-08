@@ -370,6 +370,60 @@ Main():void =
 
 > Then a call could not tell them apart, and openverse says so before the program runs.
 
+Can we hand a recipe to another recipe?
+
+```{.verse .run}
+Double(N:int):int = N * 2
+Twice(F:int->int, N:int):int = F(F(N))
+
+Main():void =
+    Print("{Twice(Double, 5)}")
+```
+
+> ```{.output}
+> 20
+> ```
+
+What is `int->int`?
+
+> The type of a recipe that takes an `int` and gives back an `int`. `Double` is one, so `Twice` may take it, and calls it twice.
+
+Why is there nothing after `Double` in `Twice(Double, 5)`?
+
+> `Double(5)` would be a call, and give `10`. `Double` alone is the recipe itself, handed over to be used later.
+
+Can a name hold a recipe?
+
+```{.verse .run}
+Double(N:int):int = N * 2
+AddOne(N:int):int = N + 1
+
+Main():void =
+    var Step:int->int = Double
+    Print("{Step(10)}")
+    set Step = AddOne
+    Print("{Step(10)}")
+```
+
+> ```{.output}
+> 20
+> 11
+> ```
+>
+> Yes. A recipe is a value like any other.
+
+May we hand `Twice` any recipe at all?
+
+```{.verse .reject expect="expected type{_(:int):int}, found type{_(:string):string}"}
+Shout(S:string):string = "{S}!"
+Twice(F:int->int, N:int):int = F(F(N))
+
+Main():void =
+    Print("{Twice(Shout, 5)}")
+```
+
+> No. `Shout` takes a string, and `Twice` wants a recipe that takes an `int`. openverse writes `int->int` the long way, as `type{_(:int):int}`.
+
 Can we keep names and recipes in a box of their own?
 
 ```{.verse .run}

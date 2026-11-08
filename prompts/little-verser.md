@@ -73,7 +73,7 @@ keys and players. Keep examples tiny.
 |---|---|---|---|
 | — | `00-preface.md` | Before We Begin | how to read the dialogue; how to run a program (`openverse run FILE.verse`) |
 | 1 | `01-values.md` | Plain Values | `int`, `logic`, `char`, `string`, arrays, tuples; `Main`, `Print`, interpolation |
-| 2 | `02-names.md` | Names and Recipes | `X := …`, typed names, functions, recursion, `var` and `set`, no shadowing |
+| 2 | `02-names.md` | Names and Recipes | `X := …`, typed names, functions, recursion, `var` and `set`, no shadowing, functions as values (`int->int`) |
 | 3 | `03-fail.md` | Yes, No, and Fail | comparisons that fail, `if`, failure contexts, `<decides>`, `F[…]` vs `F(…)`, indexing |
 | 4 | `04-rollback.md` | Take It Back | rollback of `set` and `Print` in a failed condition; `not`, `or`, `and` |
 | 5 | `05-again.md` | Again and Again | `for` over arrays and ranges, filters, several generators, `loop`, `break`, `return` |
