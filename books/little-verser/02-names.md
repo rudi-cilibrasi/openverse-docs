@@ -352,6 +352,53 @@ Main():void =
 ```
 
 > Then a call could not tell them apart, and openverse says so before the program runs.
+
+Can we keep names and recipes in a box of their own?
+
+```{.verse .run}
+treasure := module:
+    Gems<public>:int = 3
+    Show<public>(N:int):string = "{N} gems"
+
+Main():void =
+    Print(treasure.Show(treasure.Gems))
+```
+
+> ```{.output}
+> 3 gems
+> ```
+>
+> Yes: a *module*. Outside it, we write `treasure.` before its names.
+
+What does `<public>` do?
+
+```{.verse .reject expect="is internal to treasure"}
+treasure := module:
+    Gems:int = 3
+
+Main():void =
+    Print("{treasure.Gems}")
+```
+
+> It lets a name out of its module. Without it, the name stays inside, and openverse says how to share it.
+
+Must we always write `treasure.`?
+
+```{.verse .run}
+treasure := module:
+    Gems<public>:int = 3
+
+using{treasure}
+
+Main():void =
+    Print("{Gems} gems")
+```
+
+> ```{.output}
+> 3 gems
+> ```
+>
+> No. `using{treasure}` brings its public names in.
 :::
 
 ::: {.rule title="The Rule of Recipes"}
