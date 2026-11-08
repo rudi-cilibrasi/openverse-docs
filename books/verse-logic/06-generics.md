@@ -307,8 +307,8 @@ s
 `GetAny` is checked once, with `t` opaque, yet on an `int_box` it runs
 `int_box`'s `Get`, whose body `V + 1` makes sense only at `int`. Verse Core
 has no method tables: the call tests the receiver's class tag, one
-$\mathit{isTag}$ per class, and calls the matching implementation
-(`openverse core` shows the chain). The branch that calls `int_box`'s `Get`,
+$\mathit{isTag}$ test for each implementation of `Get` (here two), and calls
+the one that matches (`openverse core` shows the chain). The branch that calls `int_box`'s `Get`,
 which returns an `int` where `GetAny` promises a `t`, is typed under the
 refinement $\mu = [t \mapsto \mathit{int}]$, the most general substitution
 that agrees with the pin. At the instance $t = \mathit{string}$ no
