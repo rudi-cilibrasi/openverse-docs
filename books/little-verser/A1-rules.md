@@ -91,11 +91,18 @@ and its `var` fields may change. An object always knows its own class,
 and `T[X]` asks whether `X` is a `T`.
 :::
 
+::: {.rule title="The Rule of Turns"}
+A `<suspends>` recipe may wait. A `sync` waits for all its arms, a `race`
+for the first, and `spawn` starts a task to `Await` later. Tasks take
+turns on a clock of ticks, always in the same order, so a program with
+tasks still has one answer.
+:::
+
 ::: {.rule title="The Rule of Promises"}
-A recipe's effects are promises: `<decides>` may fail, `<computes>` touches
-no changing thing, `<reads>` only looks, `<allocates>` only makes new
-things, `<transacts>` may do it all. Verse refuses a recipe that breaks its
-promise.
+A recipe's effects are promises: `<decides>` may fail, `<suspends>` may
+wait, `<computes>` touches no changing thing, `<reads>` only looks,
+`<allocates>` only makes new things, `<transacts>` may do it all. Verse
+refuses a recipe that breaks its promise.
 :::
 
 ::: {.rule title="The Rule of Errors"}

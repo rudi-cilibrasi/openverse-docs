@@ -68,7 +68,9 @@ Things that surprise newcomers and that both books must get right:
   reading). `not e` always discards `e`'s effects.
 - `<decides>` functions can fail and are called with brackets, `F[X]`; other
   functions are called with parentheses, `F(X)`, and never fail.
-- openverse is **deterministic**: no `choice` (`|`), no concurrency. `int` is
+- openverse is **deterministic**: no `choice` (`|`); its concurrency
+  (`<suspends>`, `Sleep`, `sync`, `race`, `spawn`) takes turns in a fixed
+  order on a virtual clock of ticks, so it is deterministic too. `int` is
   64-bit; overflow is a runtime error (exit 2), not a failure. `Err()` is a
   runtime error too. A `<decides>` `Main` that fails exits with code 1.
 - No shadowing: a name cannot be defined twice in one function, even in
