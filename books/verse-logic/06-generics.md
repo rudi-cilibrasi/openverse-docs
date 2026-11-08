@@ -278,6 +278,60 @@ The fifth recursive call has `t` $=$ a tuple nested five deep. Each call
 instantiates \rulename{T-Call} with a different $\theta$; the substitution
 lemma does not care.
 
+Classes can be parametric too, and a class may fix its parent's type
+argument and override the parent's methods at that type. This is where the
+pins of the theorem come from:
+
+```{.verse .run}
+box(t:type) := class:
+    V:t
+    Get():t = V
+
+int_box := class(box(int)):
+    Get<override>():int = V + 1
+
+GetAny(B:box(t) where t:type):t = B.Get()
+
+Main():void =
+    Print("{GetAny(box(int){V := 41})}")
+    Print("{GetAny(int_box{V := 41})}")
+    Print(GetAny(box(string){V := "s"}))
+```
+
+```{.output}
+41
+42
+s
+```
+
+`GetAny` is checked once, with `t` opaque, yet on an `int_box` it runs
+`int_box`'s `Get`, whose body `V + 1` makes sense only at `int`. Verse Core
+has no method tables: the call tests the receiver's class tag, one
+$\mathit{isTag}$ per class, and calls the matching implementation
+(`openverse core` shows the chain). The branch that calls `int_box`'s `Get`,
+which returns an `int` where `GetAny` promises a `t`, is typed under the
+refinement $\mu = [t \mapsto \mathit{int}]$, the most general substitution
+that agrees with the pin. At the instance $t = \mathit{string}$ no
+substitution agrees with it, and the branch is typed as unreachable
+(`Typed.dispatch_none`). It is: a `box(string)` is never an `int_box`,
+because an object's type arguments must agree with its class's pins.
+
+The refinement binds variables to closed types and nothing else. A class
+that repeats an argument, `dup(t) := class(pair(t, t))`, would need a
+refinement that makes two variables equal, and its overrides are refused:
+
+```{.verse .reject expect="so it cannot override Get"}
+pair(t:type, u:type) := class:
+    A:t
+    B:u
+    Get():t = A
+
+dup(t:type) := class(pair(t, t)):
+    Get<override>():t = B
+
+Main():void = Print("unused")
+```
+
 ## Limits and readings
 
 - **The lemma is about typing, not about behavior.** It does not say that a
@@ -293,6 +347,8 @@ lemma does not care.
 - **Restrictions of the subset**: no named parameters, generic `Main`, or
   explicit type arguments for generic functions; several constraints on one
   type parameter are not supported (nor, at the time of writing, in the Book).
+  A class may override only where it fixes type arguments to closed types:
+  not where it repeats them, as `dup` does, or adds type parameters of its own.
 
 ::: {.exercise title="Exercises"}
 1. Prove `VTy.subst_comp`, $\theta(\theta'\sigma) = (\theta\circ\theta')\sigma$,
@@ -313,7 +369,11 @@ lemma does not care.
 
    Main():void = Print(Second(array{"a", "b"}, "none"))
    ```
-6. (*) State Reynolds' parametricity for a function of type
+6. Give `GetAny` the receiver type `box(string)` in place of `box(t)` and read
+   `openverse core`: which class has no $\mathit{isTag}$ test any more? Why may
+   the front end leave it out, and which rule would type its branch if it
+   were there?
+7. (*) State Reynolds' parametricity for a function of type
    $\forall\alpha.\ \alpha \to \alpha$ in Verse Core, and explain what the
    hidden witness argument would have to satisfy for it to hold.
 :::
