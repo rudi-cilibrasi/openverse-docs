@@ -2,7 +2,8 @@
 
 A good treasure map makes promises: "the path is safe", "the chest is
 under the oak". A good program does too. In this last chapter we see the
-promises a Verse recipe can make about itself, the few ways a program can
+promises a Verse recipe can make about itself (that it may fail, that it
+may wait its turn, what it may do to objects), the few ways a program can
 still go wrong, and the promises openverse keeps for *every* program it
 accepts.
 
@@ -11,6 +12,188 @@ What did `<decides>` promise?
 
 > That a recipe may fail. And a recipe *without* it promises never to fail.
 
+Can a recipe promise to *wait*?
+
+> Yes, with `<suspends>`. While one recipe waits, others go on, the way one
+> hunter digs while another reads the map.
+
+What does `Sleep(1.0)` do?
+
+```{.verse .run}
+Main()<suspends>:void =
+    Print("dig")
+    Sleep(1.0)
+    Print("found it")
+```
+
+> ```{.output}
+> dig
+> found it
+> ```
+>
+> It waits one second, then goes on.
+
+Did we really wait a whole second?
+
+> Not in openverse. Its clock is make-believe: it counts *ticks*, thirty to a
+> second, and when everyone is asleep it skips straight to the next tick
+> where someone wakes up. The program finishes at once.
+
+Why does `Main` say `<suspends>`?
+
+> Because it waits. A recipe that waits must say so.
+
+May any recipe wait?
+
+```{.verse .reject expect="it can only be called in a <suspends> function"}
+Rest():void =
+    Sleep(1.0)
+
+Main():void = Rest()
+```
+
+> No! Only a recipe that promises `<suspends>` may call `Sleep`, or call
+> another recipe that waits.
+
+How do Ada and Lin dig at the same time?
+
+```{.verse .run}
+Dig(Name:string, Holes:int)<suspends>:void =
+    for (I := 1..Holes):
+        Print("{Name} digs hole {I}")
+        Sleep(1.0)
+
+Main()<suspends>:void =
+    sync:
+        Dig("Ada", 2)
+        Dig("Lin", 3)
+    Print("all dug")
+```
+
+> ```{.output}
+> Ada digs hole 1
+> Lin digs hole 1
+> Ada digs hole 2
+> Lin digs hole 2
+> Lin digs hole 3
+> all dug
+> ```
+>
+> Each line of a `sync` is an *arm*, and the arms run side by side. The
+> `sync` ends when every arm has ended.
+
+Why does Ada always go before Lin?
+
+> Each arm runs until it waits. Then the next arm has its turn. When a tick
+> comes, the arms that wake up take their turns in the order they are
+> written.
+
+Could another run print the lines in another order?
+
+> Never. The same program takes the same turns and prints the same lines.
+
+What if we only care who finishes first?
+
+```{.verse .run}
+Search()<suspends>:string =
+    Sleep(3.0)
+    "treasure"
+
+Storm()<suspends>:string =
+    Sleep(2.0)
+    "storm"
+
+Main()<suspends>:void =
+    First := race:
+        Search()
+        Storm()
+    Print("first came the {First}")
+```
+
+> ```{.output}
+> first came the storm
+> ```
+>
+> A `race` ends as soon as one arm ends, with that arm's value.
+
+What happened to the search?
+
+> It was stopped. The arms that lose a race are cancelled.
+
+Can a cancelled recipe tidy up?
+
+```{.verse .run}
+Search()<suspends>:string =
+    defer:
+        Print("pack up the shovel")
+    Sleep(3.0)
+    "treasure"
+
+Storm()<suspends>:string =
+    Sleep(2.0)
+    "storm"
+
+Main()<suspends>:void =
+    First := race:
+        Search()
+        Storm()
+    Print("first came the {First}")
+```
+
+> ```{.output}
+> pack up the shovel
+> first came the storm
+> ```
+>
+> Yes. Its `defer:` block runs as it stops, before the race ends.
+
+Can we start a job, do something else, and collect the answer later?
+
+```{.verse .run}
+Fetch(Who:string, T:float)<suspends>:string =
+    Sleep(T)
+    "{Who}'s map"
+
+Main()<suspends>:void =
+    A := spawn{Fetch("Ada", 2.0)}
+    L := spawn{Fetch("Lin", 1.0)}
+    Print(L.Await())
+    Print(A.Await())
+```
+
+> ```{.output}
+> Lin's map
+> Ada's map
+> ```
+>
+> `spawn` starts a *task* and gives it back at once. `Await()` waits for the
+> task's answer.
+
+What if everyone waits and nobody can ever wake up?
+
+```{.verse .run exit="2"}
+Main()<suspends>:void =
+    Print("wait for a ship")
+    Sleep(Inf)
+    Print("never")
+```
+
+> ```{.output}
+> wait for a ship
+> ```
+>
+> `Sleep(Inf)` waits forever. openverse sees that nothing can ever happen
+> again, and stops the program as `Err()` would.
+:::
+
+::: {.rule title="The Rule of Turns"}
+A `<suspends>` recipe may wait. A `sync` waits for all its arms, a `race`
+for the first, and `spawn` starts a task to `Await` later. Tasks take
+turns on a clock of ticks, always in the same order, so a program with
+tasks still has one answer.
+:::
+
+::: qa
 Are there other promises a recipe can make?
 
 > Yes. They say what a recipe may do to the objects around it.
@@ -66,10 +249,10 @@ Why make promises at all?
 :::
 
 ::: {.rule title="The Rule of Promises"}
-A recipe's effects are promises: `<decides>` may fail, `<computes>` touches
-no changing thing, `<reads>` only looks, `<allocates>` only makes new
-things, `<transacts>` may do it all. Verse refuses a recipe that breaks its
-promise.
+A recipe's effects are promises: `<decides>` may fail, `<suspends>` may
+wait, `<computes>` touches no changing thing, `<reads>` only looks,
+`<allocates>` only makes new things, `<transacts>` may do it all. Verse
+refuses a recipe that breaks its promise.
 :::
 
 ::: qa
@@ -205,6 +388,6 @@ loops are left to watch for.
 :::
 
 That is the end of our hunt. You know values and names, questions that
-fail, guesses that are taken back, loops, boxes, maps and objects, and the
-promises that hold them together. The rest of Verse is more of the same
+fail, guesses that are taken back, loops, boxes, maps and objects, tasks
+that take turns, and the promises that hold them together. The rest of Verse is more of the same
 ideas. Go and find some treasure.

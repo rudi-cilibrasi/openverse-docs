@@ -79,7 +79,7 @@ keys and players. Keep examples tiny.
 | 5 | `05-again.md` | Again and Again | `for` over arrays and ranges, filters, several generators, `loop`, `break`, `return` |
 | 6 | `06-maybe.md` | Maybe | options `?t`, `option{…}`, `?`, `false` as empty, maps `[k]v` |
 | 7 | `07-shapes.md` | Shapes of Things | structs, enums and `case`, classes, methods, inheritance, casts, `var` fields |
-| 8 | `08-promises.md` | Promises Kept | effects (`<decides>`, `<computes>`, `<reads>`, `<transacts>`), runtime errors (overflow, `Err()`), and the promises openverse proves, in English |
+| 8 | `08-promises.md` | Promises Kept | effects (`<decides>`; `<suspends>` with `Sleep`, `sync`, `race`, `spawn`, taking turns; `<computes>`, `<reads>`, `<transacts>`), runtime errors (overflow, `Err()`), and the promises openverse proves, in English |
 | A | `A1-rules.md` | The Rules | every rule, in order |
 
 Each numbered chapter: a one-paragraph opening outside the dialogue, then
