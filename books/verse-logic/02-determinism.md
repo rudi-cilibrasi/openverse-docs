@@ -98,10 +98,13 @@ Lean the side condition "not a success" is written `r.isOk = false`.)
 its premises would break determinism even without overlaps: a rule for
 choice, say, with conclusions $\ok{v_1}$ and $\ok{v_2}$ for $e_1 \mid e_2$, or
 an allocation rule that picks *some* fresh address. openverse has neither.
-`choice` is not in the supported subset. Concurrency is (`spawn`, `race`,
-`sync`, `Sleep`), but it adds no rule to Verse Core: the front end compiles it
-into ordinary Core code, as the next section shows. And allocation takes the
-*next* address, the current size of the heap:
+Choice is in the subset (from the Verse Calculus; the Book of Verse does not
+describe it yet), but ordered: `e₁ | e₂` gives `e₁`'s values, then `e₂`'s,
+and it adds no rule to Verse Core, because the front end compiles it
+into iteration over the alternatives. Concurrency (`spawn`, `race`, `sync`,
+`Sleep`) adds no rule either: the front end compiles it into ordinary Core
+code. The next section shows both. And allocation takes the *next* address,
+the current size of the heap:
 
 ```{.lean .excerpt file="OpenVerse/Core/Semantics.lean"}
   | .new t, vs, ⟨out, heap⟩ =>
@@ -279,6 +282,35 @@ it from one wait to the next, and the scheduler is a helper written in Verse
 the surface program is tested, not proved, like the rest of the front end:
 Chapter 8.)
 
+Choice is compiled the same way. Its values come in *spatial* order, fixed
+by where each choice is written: the leftmost varies slowest, as the
+generators of a `for` do. A `for` takes every value, and an `if` takes the
+first that makes its condition succeed:
+
+```{.verse .run}
+Main():void =
+    for (X := 1 | 2, Y := 10 | 20):
+        Print("{X + Y}")
+    if (X := 1 | 2 | 3, X > 1):
+        Print("first success: {X}")
+```
+
+```{.output}
+11
+21
+12
+22
+first success: 2
+```
+
+In Verse Core each choice is a loop over its alternatives' indices
+(`Expr.altE`, `Expr.chooseFirst` and `Expr.firstE` in `Core/Derived.lean`),
+so `Eval.det` applies here too. `Core/Derived.lean` also proves sufficient
+conditions about those forms for the first success (`chooseFirst_brk`,
+`chooseFirst_none`). That the front end emits them as described, and the
+reading of a choice in a `for`, are tested, not proved
+(`docs/LANGUAGE.md`, "Choice").
+
 Finally, determinism is what makes openverse's testing strategy sound. Its C
 interpreter is compared with the Lean interpreter on every test program and
 on random programs, byte for byte, output and exit code. Without
@@ -286,13 +318,13 @@ determinism, a disagreement would not show a bug: both could be right.
 
 ## Limits and readings
 
-- **The subset is deterministic; Verse is not.** Full Verse has choice. The
-  theorem is about openverse's subset, and it is one reason for choosing
-  that subset: the Verse Calculus paper itself studies how to keep choice
-  deterministic by fixing the order of results, a more delicate property
-  than ours. openverse's concurrency is deterministic by construction: it
-  fixes the order in which tasks go on and counts time in ticks
-  (`docs/LANGUAGE.md`).
+- **Determinism by fixing orders.** The theorem is about openverse's
+  subset, and the subset fixes every order that could vary. Choice gives
+  its values in spatial order, the reading the Verse Calculus paper takes
+  to keep choice deterministic. The places a choice may appear are listed
+  in `docs/LANGUAGE.md`. Concurrency fixes the order in which tasks go on
+  and counts time in ticks. Both are compiled into Core code, so they add
+  no rule for `Eval.det` to cover.
 - **At most one, not exactly one.** `Eval.det` gives uniqueness, not
   existence. A diverging program has no outcome; Chapter 1 explained why
   that is the only way to have none.
