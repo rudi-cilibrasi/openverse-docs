@@ -117,6 +117,11 @@ fonts.
    locally `npm ci && npm run check-a11y` after `make site`). It reports
    violations but does not hold back the deployment.
 
+The demo and simulator jobs build and test each pin once. Their `dist/` is
+cached under the submodule's commit, and since a cache is saved only when its
+job succeeds, a later run with the same pin reuses it and skips the build and
+the tests. A books-only change therefore waits only for the books job.
+
 A pull request's assembled site is its `site` artifact. GitHub Pages must be
 set, once, to serve the `gh-pages` branch (Settings → Pages → Deploy from a
 branch → `gh-pages`, `/ (root)`).
