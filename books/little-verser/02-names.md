@@ -318,6 +318,40 @@ Main():void =
 What is that `if` doing there?
 
 > Asking a question. It is the next chapter's business.
+
+Can two recipes share a name, then?
+
+```{.verse .run}
+Describe(N:int):string = "{N} coins"
+Describe(S:string):string = "a {S}"
+
+Main():void =
+    Print(Describe(3))
+    Print(Describe("gem"))
+```
+
+> ```{.output}
+> 3 coins
+> a gem
+> ```
+>
+> Yes, if they take different kinds of things.
+
+How does Verse choose?
+
+> By what we give it: an `int` goes to the first `Describe`, a string to the second.
+
+And if both take an `int`?
+
+```{.verse .reject expect="a call cannot tell apart"}
+Describe(N:int):string = "{N} coins"
+Describe(K:int):string = "{K} keys"
+
+Main():void =
+    Print(Describe(3))
+```
+
+> Then a call could not tell them apart, and openverse says so before the program runs.
 :::
 
 ::: {.rule title="The Rule of Recipes"}
