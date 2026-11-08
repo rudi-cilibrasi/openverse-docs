@@ -90,7 +90,7 @@ raises a slot or call error and never changes the size of a frame:
 `WellScoped` is also exactly what openverse's C loader validates before it
 runs a binary, so the C interpreter can use fixed-size frames with no
 bounds checks of its own. That the C loader really establishes it, for every
-input buffer up to 4 KiB, is a separate machine-checked proof in Coq
+input buffer up to 4 KiB, is a separate machine-checked proof in Rocq
 (QuickProof's law `loader_wellscoped`).
 
 **Control.** $\mathrm{brkSafe}_{b}(e)$, with $b$ recording whether we are
@@ -223,7 +223,7 @@ apply_min_neg_one :
 ```
 
 This theorem sits on a **seam**. openverse's C runtime implements the integer
-operations in C, and a separate proof, in Coq with the QuickProof tool under
+operations in C, and a separate proof, in Rocq with the QuickProof tool under
 CompCert's semantics of C, shows that each C function computes a reference
 formula written with C99's truncating `/` and `%`. `Seams.lean` restates each
 formula in Lean, symbol for symbol, and proves that it *is* the Lean
@@ -273,14 +273,14 @@ bytes the C runtime prints has these links:
 | hypotheses $\Rightarrow$ guarantees | Lean: Chapters 2–7, combined in `Prog.accepted` |
 | relation $=$ reference interpreter | Lean: `eval_iff` (Chapter 1) |
 | Verse Core $\to$ binary (OVBC, `Prog.encode`) | unverified; covered by differential testing |
-| OVBC $\to$ C loader | loader proved (QuickProof, Coq) to accept only `WellScoped` programs |
+| OVBC $\to$ C loader | loader proved (QuickProof, Rocq) to accept only `WellScoped` programs |
 | reference interpreter $\approx$ C interpreter | differential testing and fuzzing, under sanitizers; not proved |
 | C arithmetic $=$ `Prim.apply` | QuickProof law `arith_exact` + `Seams.lean`, meeting at a formula read by a human |
 | C rollback store | QuickProof law `store_rollback_model`, against a naive snapshot model, bounded |
 
 What is trusted is Lean's kernel, the statement of the semantics
 (`Semantics.lean`, `Prims.lean`), QuickProof's own trusted base for the C
-proofs (Coq, VST, CompCert's C semantics), the reading of each seam, and the
+proofs (Rocq, VST, CompCert's C semantics), the reading of each seam, and the
 gap between CompCert's C and the compiler that builds the runtime. That is
 not nothing, but every item is named, and none of them is five thousand
 lines of elaborator.
