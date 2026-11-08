@@ -104,8 +104,9 @@
   output printed in the book; every rejected program must be rejected with the message
   shown; every Lean statement in <em>Verse Logic</em> must match, symbol for symbol, the
   statement Lean prints for that theorem. If the books and openverse disagree, the site
-  is not published. The playground's own browser tests run the compiler and runtime
-  through real WebAssembly before each deployment. The simulator's browser tests
+  is not published. Before a new version of the playground is published, it is built
+  from source and its browser tests run the compiler and runtime through real
+  WebAssembly. The simulator's browser tests, run the same way for each new version,
   also check its compiled WASM maps, movement, interactions, and Verse reactions.</p>
   <p>In the web editions, every whole program has a <strong>▶ Run in the playground</strong>
   link: one click opens it in the editor, ready to run and change.</p>
