@@ -136,7 +136,7 @@ jobs:
       - uses: actions/setup-node@v7
         if: steps.built.outputs.cache-hit != 'true'
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: demo/package-lock.json
 
@@ -182,7 +182,7 @@ jobs:
       - uses: actions/setup-node@v7
         if: steps.built.outputs.cache-hit != 'true'
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: sim/package-lock.json
       - name: Install simulator dependencies and browser
@@ -260,7 +260,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install the checker and its browser
