@@ -288,6 +288,28 @@ What else fails?
 
 > Dividing by zero. `Mod[7, 0]` fails, and so does `Floor(7 / 0)`.
 
+What is `7 / 2`, then?
+
+> Exactly seven halves: a `rational`. Dividing `int`s never rounds.
+
+How do we see a `rational`?
+
+```{.verse .run}
+Main():void =
+    if (H := 7 / 2):
+        Print("{Floor(H)} to {Ceil(H)}")
+```
+
+> ```{.output}
+> 3 to 4
+> ```
+>
+> `Floor` and `Ceil` give the whole numbers on either side of it.
+
+Why is `7 / 2` inside an `if`?
+
+> Because a division may fail: `7 / 0` has no answer.
+
 Can we write our own recipe that fails?
 
 ```{.verse .run}

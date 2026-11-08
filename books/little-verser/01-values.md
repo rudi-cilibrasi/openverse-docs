@@ -115,6 +115,40 @@ Was `3 + 4` printed?
 
 > No. Its value, `7`, was.
 
+What is `3.5`, if it is not an `int`?
+
+> A `float`: a number with a point. `2.0` is one too.
+
+What does this print?
+
+```{.verse .run}
+Main():void =
+    Print("{1.5 + 1.5}")
+```
+
+> ```{.output}
+> 3.0
+> ```
+>
+> A `float` keeps its point, even when it is whole.
+
+And this?
+
+```{.verse .run}
+Main():void =
+    Print("{0.1 + 0.2}")
+```
+
+> ```{.output}
+> 0.30000000000000004
+> ```
+>
+> Almost `0.3`. A `float` is a close guess.
+
+Then when do we use an `int`?
+
+> For what we count: coins, gems, keys. A `float` is for what we measure.
+
 What does this print?
 
 ```{.verse .run}
@@ -305,8 +339,8 @@ Is a tuple an array?
 :::
 
 ::: {.rule title="The Rule of Types"}
-Every value has a type: `int`, `logic`, `char`, `string`, an array type
-such as `[]int`, or a tuple type such as `tuple(int, string)`. An array's
+Every value has a type: `int`, `float`, `logic`, `char`, `string`, an array
+type such as `[]int`, or a tuple type such as `tuple(int, string)`. An array's
 elements all share one type; a tuple's parts each have their own.
 :::
 
