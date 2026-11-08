@@ -151,11 +151,99 @@ How many times did the body run?
 Does a `for` like this always print in the same order?
 
 > Always. Verse does not guess or shuffle: one program, one answer.
+
+Can a name have several values at once?
+
+```{.verse .run}
+Main():void =
+    for (Gem := 1 | 5 | 10):
+        Print("a gem worth {Gem}")
+```
+
+> ```{.output}
+> a gem worth 1
+> a gem worth 5
+> a gem worth 10
+> ```
+>
+> Yes. `1 | 5 | 10` is a *choice*: one value, then the next. A `for` takes them all, left to right.
+
+Will every Verse understand `|`?
+
+> Not yet. Choice comes from the Verse Calculus, the paper that describes Verse's core, and the Book of Verse does not describe it yet. openverse has it already.
+
+And two choices?
+
+```{.verse .run}
+Main():void =
+    for (X := 1 | 2, Y := 10 | 20):
+        Print("{X + Y}")
+```
+
+> ```{.output}
+> 11
+> 21
+> 12
+> 22
+> ```
+>
+> Just like two ranges: the last one changes faster.
+
+What does an `if` do with a choice?
+
+```{.verse .run}
+Main():void =
+    if (Gem := 1 | 5 | 10, Gem > 3):
+        Print("we keep {Gem}")
+```
+
+> ```{.output}
+> we keep 5
+> ```
+>
+> It takes the first value that makes its whole condition succeed. `1` fails `Gem > 3`, `5` passes, and `10` is never tried.
+
+And if no value passes?
+
+```{.verse .run}
+Main():void =
+    if (Gem := 1 | 2, Gem > 3):
+        Print("we keep {Gem}")
+    else:
+        Print("none worth keeping")
+```
+
+> ```{.output}
+> none worth keeping
+> ```
+>
+> Then the condition fails, as any failed guess does.
+
+Does a value that failed leave a trace?
+
+```{.verse .run}
+Main():void =
+    var Tried:int = 0
+    if (G := 1 | 5, set Tried += 1, G > 3):
+        Print("{G}, Tried = {Tried}")
+```
+
+> ```{.output}
+> 5, Tried = 1
+> ```
+>
+> No. The try with `1` failed, so it was taken back. Only the try with `5` counts.
 :::
 
 ::: {.rule title="The Rule of For"}
 A `for` visits each choice in order, skips the ones whose filters fail,
 and gives back the array of its body's values.
+:::
+
+::: {.rule title="The Rule of Choices"}
+A choice `a | b` has `a`'s values, then `b`'s. A `for` takes every one;
+an `if` takes the first that makes its condition succeed, and takes back
+the tries that failed.
 :::
 
 ::: qa

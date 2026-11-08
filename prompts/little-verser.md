@@ -76,7 +76,7 @@ keys and players. Keep examples tiny.
 | 2 | `02-names.md` | Names and Recipes | `X := …`, typed names, functions, recursion, `var` and `set`, no shadowing, functions as values (`int->int`) |
 | 3 | `03-fail.md` | Yes, No, and Fail | comparisons that fail, `if`, failure contexts, `<decides>`, `F[…]` vs `F(…)`, indexing |
 | 4 | `04-rollback.md` | Take It Back | rollback of `set` and `Print` in a failed condition; `not`, `or`, `and` |
-| 5 | `05-again.md` | Again and Again | `for` over arrays and ranges, filters, several generators, `loop`, `break`, `return` |
+| 5 | `05-again.md` | Again and Again | `for` over arrays and ranges, filters, several generators, choices `a \| b` (a `for` takes all, an `if` the first success), `loop`, `break`, `return` |
 | 6 | `06-maybe.md` | Maybe | options `?t`, `option{…}`, `?`, `false` as empty, maps `[k]v` |
 | 7 | `07-shapes.md` | Shapes of Things | structs, enums and `case`, classes, methods, inheritance, casts, `var` fields |
 | 8 | `08-promises.md` | Promises Kept | effects (`<decides>`; `<suspends>` with `Sleep`, `sync`, `race`, `spawn`, taking turns; `<computes>`, `<reads>`, `<transacts>`), runtime errors (overflow, `Err()`), and the promises openverse proves, in English |

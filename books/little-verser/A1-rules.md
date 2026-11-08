@@ -58,6 +58,12 @@ A `for` visits each choice in order, skips the ones whose filters fail,
 and gives back the array of its body's values.
 :::
 
+::: {.rule title="The Rule of Choices"}
+A choice `a | b` has `a`'s values, then `b`'s. A `for` takes every one;
+an `if` takes the first that makes its condition succeed, and takes back
+the tries that failed.
+:::
+
 ::: {.rule title="The Rule of Loop"}
 A `loop` repeats until a `break` (or a `return`) leaves it. A `for` needs
 neither: it stops when it runs out of choices.
