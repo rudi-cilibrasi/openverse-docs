@@ -11,8 +11,8 @@ To show a value, put it in braces inside a string, and print the string.
 :::
 
 ::: {.rule title="The Rule of Types"}
-Every value has a type: `int`, `logic`, `char`, `string`, an array type
-such as `[]int`, or a tuple type such as `tuple(int, string)`. An array's
+Every value has a type: `int`, `float`, `logic`, `char`, `string`, an array
+type such as `[]int`, or a tuple type such as `tuple(int, string)`. An array's
 elements all share one type; a tuple's parts each have their own.
 :::
 
