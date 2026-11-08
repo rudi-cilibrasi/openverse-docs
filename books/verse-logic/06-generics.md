@@ -332,6 +332,35 @@ dup(t:type) := class(pair(t, t)):
 Main():void = Print("unused")
 ```
 
+Function values reach Verse Core the same way. The front end turns each
+function type into an instance of a hidden generic interface with one
+abstract method `$call`, one interface per arity and effects, so
+`type{_(:t):t}` is that interface applied to `t` and `t`. A function used as
+a value becomes an object of a hidden class that implements the interface at
+the function's own types, and a call through a function-typed value is a
+method call, dispatched by the same $\mathit{isTag}$ chain as `Get`'s. So
+function values add no rule to Verse Core, and the lemma covers them. Here
+`Twice` is checked once, with `F`'s type mentioning the opaque `t`:
+
+```{.verse .run}
+Twice(F:type{_(:t):t}, X:t where t:type):t = F(F(X))
+Double(N:int):int = N * 2
+Shout(S:string):string = "{S}!"
+
+Main():void =
+    Print("{Twice(Double, 5)}")
+    Print(Twice(Shout, "hey"))
+```
+
+```{.output}
+20
+hey!!
+```
+
+`openverse core` shows the pieces: `Double$fn.$call` and `Shout$fn.$call`,
+the hidden classes' implementations, and `$fn1.$call`, the dispatch that a
+call `F(X)` inside `Twice` becomes.
+
 ## Limits and readings
 
 - **The lemma is about typing, not about behavior.** It does not say that a
