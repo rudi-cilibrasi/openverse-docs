@@ -427,9 +427,11 @@ call `F(X)` inside `Twice` becomes.
   then the arguments (`docs/LANGUAGE.md`). It need not be complete or even
   correct: the checker re-checks each call against the instantiated
   signature, and only that check is part of the trusted argument.
-- **Restrictions of the subset**: no named parameters, generic `Main`, or
-  explicit type arguments for generic functions; several constraints on one
-  type parameter are not supported (nor, at the time of writing, in the Book).
+- **Restrictions of the subset**: no generic `Main`, and no explicit type
+  arguments for generic functions; several constraints on one type parameter
+  are not supported (nor, at the time of writing, in the Book). Named
+  parameters work in generic functions as elsewhere: `Gn(X:t, ?Y:t = X where
+  t:type)` is called as `Gn(1, ?Y := 2)` or `Gn("a")`.
   A class may override where it fixes, repeats or relates its parent's type
   arguments, or has type arguments of its own (`pairE`), and such an
   override may be `<suspends>`. `docs/LANGUAGE.md` lists what is still
