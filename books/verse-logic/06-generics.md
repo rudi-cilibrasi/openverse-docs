@@ -349,6 +349,43 @@ $t$. At the instance `pair(int, string)` nothing makes `int` equal to
 `string`, so the branch is unreachable there, as `int_box`'s was at
 `box(string)`.
 
+A class may even have type arguments of its own that the declaring class
+lacks. `pairE(a, b)` gives `expr` the single argument `tuple(a, b)`, so code
+generic over `expr(t)` has no names for `a` and `b`:
+
+```{.verse .run}
+expr(t:type) := class:
+    V:t
+    Get():t = V
+
+pairE(a:type, b:type) := class(expr(tuple(a, b))):
+    L:a
+    R:b
+    Get<override>():tuple(a, b) = (L, R)
+
+First(E:expr(tuple(x, y)) where x:type, y:type):x = E.Get()(0)
+
+Main():void =
+    Plain := expr(tuple(int, string)){V := (0, "v")}
+    P := pairE(int, string){V := (0, "v"), L := 1, R := "r"}
+    Print("{First(Plain)} {First(P)}")
+```
+
+```{.output}
+0 1
+```
+
+The dispatch *opens* `pairE`'s arguments as fresh type variables: the
+override's branch is typed under the unifier of the receiver's argument with
+`tuple(a, b)`, for new $a$ and $b$. This is an existential type, in the
+logician's sense: an `expr(t)` that is a `pairE` is one for *some* $a$ and
+$b$ with $t = \mathit{tuple}(a, b)$. The object holds the values of its own
+type arguments in hidden fields, and the override reads them from there.
+That is a new way for a slot to start, as a field of a parameter's object
+(`DefaultE.field`). `Typed.dispatch` now takes the number of opened
+arguments, and two premises about the tested classes' pins: their length
+(`extOK`) and the variables they mention (`varsBelowL`).
+
 Function values reach Verse Core the same way. The front end turns each
 function type into an instance of a hidden generic interface with one
 abstract method `$call`, one interface per arity and effects, so
@@ -393,12 +430,11 @@ call `F(X)` inside `Twice` becomes.
 - **Restrictions of the subset**: no named parameters, generic `Main`, or
   explicit type arguments for generic functions; several constraints on one
   type parameter are not supported (nor, at the time of writing, in the Book).
-  A class may override where it fixes its parent's type arguments, or
-  repeats or relates them, as `dup` does. It may not where it has type
-  arguments of its own that the class declaring the method does not have
-  (an existential, such as `pairE(a, b) := class(expr(tuple(a, b)))`).
-  Dispatch requires the pins to mention only the receiver's own arguments
-  (`VTy.pinsBelow`).
+  A class may override where it fixes, repeats or relates its parent's type
+  arguments, or has type arguments of its own (`pairE`). Some overrides are
+  still refused: `<suspends>` overrides in a class with type arguments of
+  its own, and `spawn`s of them, and such classes under parametric
+  interfaces (`docs/LANGUAGE.md`).
 
 ::: {.exercise title="Exercises"}
 1. Prove `VTy.subst_comp`, $\theta(\theta'\sigma) = (\theta\circ\theta')\sigma$,
