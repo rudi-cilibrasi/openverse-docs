@@ -79,8 +79,7 @@ empty option type ${?}\alpha_j$.
 
 ::: {.theorem title="The substitution lemma (`Typed.subst`)"}
 If the signatures $S$ are closed ($\mathrm{Closed}\ S$: the prototype
-objects' type arguments are closed, and so are the types that classes fix
-their type arguments to), then for every substitution $\theta$:
+objects' type arguments are closed), then for every substitution $\theta$:
 $$
 S;\Gamma;\rho \vdash e : \tau \ \Longrightarrow\
 S;\theta\Gamma;\theta\rho \vdash e : \theta\tau .
@@ -100,14 +99,15 @@ re-elaborated. A typing derivation with variables is a proof schema, and
 every instance of the schema is a proof. That is the logical content of
 "checked once".
 
-The hypothesis $\mathrm{Closed}$ looks technical, and it is. It has two
-halves. $\mathrm{ClosedProtos}$: literals in Verse Core may be references to
-the prototype objects that exist before `Main` (Chapter 5), and their types
-must not mention variables, or a literal typed at $\alpha_j$-dependent
-arguments could not be retyped. $\mathrm{ClosedPins}$: a class may fix its
+The hypothesis $\mathrm{Closed}$ looks technical, and it is. Literals in
+Verse Core may be references to the prototype objects that exist before
+`Main` (Chapter 5), and their types must not mention variables, or a literal
+typed at $\alpha_j$-dependent arguments could not be retyped. The front end
+always satisfies it. The *pins* need no hypothesis. A class may fix its
 parent's type arguments, as `int_box := class(box(int))` fixes `box`'s to
-`int`; $S$ records these *pins*, and they must be closed types. The front end
-always satisfies both.
+`int`, or repeat and relate them, as `dup(t) := class(pair(t, t))` (below)
+pins both of `pair`'s to its own `t`. $S$ records the pins, which may mention
+the class's own variables.
 
 ## The proof
 
@@ -160,12 +160,14 @@ composition. The class of substitutions being all functions $\mathbb{N} \to
 \mathrm{VTy}$ makes it so.
 
 **Pins.** Creating an object requires its type arguments to agree with its
-class's pins. The pins are closed, so $\theta$ leaves them alone and the
-agreement survives (`VTy.pinsOK_subst`); that is where $\mathrm{ClosedPins}$
-is used. The call of an override in a class with pins goes further, and
-looks at the types themselves: it is typed under a *refinement*
-$\mu$, the most general substitution that makes the receiver's type
-arguments agree with the pins (`int` for `box(t)`'s `t`). After $\theta$,
+class's pins: each pinned argument is its pin instantiated at the arguments.
+Substitution commutes with that instantiation, so the agreement survives
+$\theta$ whatever the pins are (`VTy.pinsOK_subst`). The call of an override
+in a class with pins goes further, and looks at the types themselves: it is
+typed under a *refinement* $\mu$, a most general substitution that makes the
+receiver's type arguments agree with the pins (`int` for `box(t)`'s `t`).
+The front end finds it by first-order unification, itself verified in Lean
+(`Core/Unify.lean`). After $\theta$,
 either some $\rho'$ makes the instance agree, so that $\rho' \circ \theta$
 makes the original arguments agree and therefore factors through the most
 general one, $(\rho' \circ \theta) \circ \mu = \rho' \circ \theta$
@@ -316,11 +318,11 @@ substitution agrees with it, and the branch is typed as unreachable
 (`Typed.dispatch_none`). It is: a `box(string)` is never an `int_box`,
 because an object's type arguments must agree with its class's pins.
 
-The refinement binds variables to closed types and nothing else. A class
-that repeats an argument, `dup(t) := class(pair(t, t))`, would need a
-refinement that makes two variables equal, and its overrides are refused:
+A refinement can also make two variables equal. `dup` repeats its type
+argument in both of `pair`'s positions, and overrides `Get` with `B`, a `u`
+in `pair`'s terms, where `Get` promises a `t`:
 
-```{.verse .reject expect="so it cannot override Get"}
+```{.verse .run}
 pair(t:type, u:type) := class:
     A:t
     B:u
@@ -329,8 +331,23 @@ pair(t:type, u:type) := class:
 dup(t:type) := class(pair(t, t)):
     Get<override>():t = B
 
-Main():void = Print("unused")
+First(P:pair(t, u) where t:type, u:type):t = P.Get()
+
+Main():void =
+    Print("{First(pair(int, string){A := 1, B := "b"})}")
+    Print("{First(dup(int){A := 3, B := 4})}")
 ```
+
+```{.output}
+1
+4
+```
+
+The branch that calls `dup`'s `Get` is typed under the most general unifier
+of `pair`'s arguments $(t, u)$ with `dup`'s pins, which makes $u$ equal to
+$t$. At the instance `pair(int, string)` nothing makes `int` equal to
+`string`, so the branch is unreachable there, as `int_box`'s was at
+`box(string)`.
 
 Function values reach Verse Core the same way. The front end turns each
 function type into an instance of a hidden generic interface with one
@@ -376,8 +393,12 @@ call `F(X)` inside `Twice` becomes.
 - **Restrictions of the subset**: no named parameters, generic `Main`, or
   explicit type arguments for generic functions; several constraints on one
   type parameter are not supported (nor, at the time of writing, in the Book).
-  A class may override only where it fixes type arguments to closed types:
-  not where it repeats them, as `dup` does, or adds type parameters of its own.
+  A class may override where it fixes its parent's type arguments, or
+  repeats or relates them, as `dup` does. It may not where it has type
+  arguments of its own that the class declaring the method does not have
+  (an existential, such as `pairE(a, b) := class(expr(tuple(a, b)))`).
+  Dispatch requires the pins to mention only the receiver's own arguments
+  (`VTy.pinsBelow`).
 
 ::: {.exercise title="Exercises"}
 1. Prove `VTy.subst_comp`, $\theta(\theta'\sigma) = (\theta\circ\theta')\sigma$,
