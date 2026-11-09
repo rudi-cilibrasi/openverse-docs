@@ -431,10 +431,9 @@ call `F(X)` inside `Twice` becomes.
   explicit type arguments for generic functions; several constraints on one
   type parameter are not supported (nor, at the time of writing, in the Book).
   A class may override where it fixes, repeats or relates its parent's type
-  arguments, or has type arguments of its own (`pairE`). Some overrides are
-  still refused: `<suspends>` overrides in a class with type arguments of
-  its own, and `spawn`s of them, and such classes under parametric
-  interfaces (`docs/LANGUAGE.md`).
+  arguments, or has type arguments of its own (`pairE`), and such an
+  override may be `<suspends>`. `docs/LANGUAGE.md` lists what is still
+  unsupported.
 
 ::: {.exercise title="Exercises"}
 1. Prove `VTy.subst_comp`, $\theta(\theta'\sigma) = (\theta\circ\theta')\sigma$,
