@@ -44,6 +44,11 @@ Three submodules are pinned to exact commits:
   the 3D island simulator. It includes pinned compiler and runtime WASM assets.
   Build it with `cd sim && npm ci && npm run build`, then bump its pin the same way.
 
+When rolling out an OpenVerse change to the whole site, update and test both
+playgrounds first, then advance the three pins together. Check that
+`demo/sources.json` and `sim/vendor/sources.json` name the same OpenVerse and
+Lean revisions, and that the OpenVerse revision matches `openverse/`.
+
 Dependabot (`.github/dependabot.yml`) opens a pull request when a
 submodule's repository moves, and CI decides whether the books still hold.
 
