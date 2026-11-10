@@ -233,6 +233,23 @@ Main():void =
 > ```
 >
 > No. The try with `1` failed, so it was taken back. Only the try with `5` counts.
+
+Can a recipe give several values?
+
+```{.verse .run}
+Gems():int = 1 | 5 | 10
+
+Main():void =
+    for (G := Gems(), G > 3):
+        Print("a gem worth {G}")
+```
+
+> ```{.output}
+> a gem worth 5
+> a gem worth 10
+> ```
+>
+> Yes. Its body is a choice, so a call of it is a choice too, and a `for` takes each value it gives.
 :::
 
 ::: {.rule title="The Rule of For"}
@@ -241,9 +258,10 @@ and gives back the array of its body's values.
 :::
 
 ::: {.rule title="The Rule of Choices"}
-A choice `a | b` has `a`'s values, then `b`'s. A `for` takes every one;
-an `if` takes the first that makes its condition succeed, and takes back
-the tries that failed.
+A choice `a | b` has `a`'s values, then `b`'s, and so does a call of a
+recipe whose body is one. A `for` takes every one; an `if` takes the
+first that makes its condition succeed, and takes back the tries that
+failed.
 :::
 
 ::: qa
@@ -404,11 +422,29 @@ Main():void =
 Which way is better?
 
 > Whichever you find easier to read. Both give one answer.
+
+Can a recipe that calls itself give endless values?
+
+```{.verse .run}
+From(N:int):int = N | From(N + 1)
+
+Main():void =
+    if (X := From(1), X * X > 50):
+        Print("{X} squared is over 50")
+```
+
+> ```{.output}
+> 8 squared is over 50
+> ```
+>
+> Yes: `1`, then `2`, then `3`, and on without end. Nothing in `From` stops it. The `if` does: it asks for one value at a time and stops at the first that passes.
 :::
 
 ::: {.rule title="The Rule of Recursion"}
 A recipe may call itself, if each call is on a smaller problem and some
 question finally stops it. In Verse, a failure is often that question.
+A recipe whose choice calls itself may go on forever: whoever asks for
+its values stops it.
 :::
 
 We can now search through any array. But what do we do when a search might
