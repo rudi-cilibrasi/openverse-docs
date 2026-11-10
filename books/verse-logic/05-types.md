@@ -98,8 +98,21 @@ def hasTy (Ξ : HeapTy) : Value → VTy → Bool
   | .ref a, .ref ts args => match Ξ[a]? with
     | some (t, args') => ts.contains t && args.isPrefixOf args'
     | none => false
+  | .ref a, .vref es args => match Ξ[a]? with
+    | some (t, args') => es.any fun e =>
+        e.1 == t && args.isPrefixOf (e.2.map (VTy.inst args'))
+    | none => false
   | _, _ => false
 ```
+
+The `vref` case is a *view*. An interface that some class gives type arguments
+other than its own first ones, as `both(t, u) := class(container(t),
+sink(u))` gives `sink` its second, has a type with one entry per class below
+it: the class's tag and the interface's type arguments written over that
+class's own (from `both`, `sink`'s view is `[var 1]`, `both`'s second
+argument). A reference has
+such a type when its object's class has an entry whose view, instantiated at
+the object's type arguments, extends the interface's arguments.
 
 A heap $h$ is **well typed** under $\Xi$, written $\mathrm{HeapOK}\ S\ \Xi\ h$,
 when $\Xi$ has one entry per object, and each object's fields have the types
