@@ -59,9 +59,10 @@ and gives back the array of its body's values.
 :::
 
 ::: {.rule title="The Rule of Choices"}
-A choice `a | b` has `a`'s values, then `b`'s. A `for` takes every one;
-an `if` takes the first that makes its condition succeed, and takes back
-the tries that failed.
+A choice `a | b` has `a`'s values, then `b`'s, and so does a call of a
+recipe whose body is one. A `for` takes every one; an `if` takes the
+first that makes its condition succeed, and takes back the tries that
+failed.
 :::
 
 ::: {.rule title="The Rule of Loop"}
@@ -72,6 +73,8 @@ neither: it stops when it runs out of choices.
 ::: {.rule title="The Rule of Recursion"}
 A recipe may call itself, if each call is on a smaller problem and some
 question finally stops it. In Verse, a failure is often that question.
+A recipe whose choice calls itself may go on forever: whoever asks for
+its values stops it.
 :::
 
 ::: {.rule title="The Rule of the Box"}
