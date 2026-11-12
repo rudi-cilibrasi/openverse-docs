@@ -238,10 +238,13 @@ Main():void = Print("{Norm(point{X := 3, Y := -4})}")
 ```
 
 An `<allocates>` function may construct objects with `var` fields, which is
-compatible with $\preceq$ because new objects go to new addresses:
+compatible with $\preceq$ because new objects go to new addresses. The
+class has to allow it: constructing an object has its own effect budget,
+declared on the class, and `class<allocates>` says that construction only
+allocates:
 
 ```{.verse .run}
-chest := class:
+chest := class<allocates>:
     var Gold:int = 0
 
 Fresh(N:int)<allocates>:chest = chest{Gold := N}
@@ -253,6 +256,18 @@ Main():void =
 
 ```{.output}
 3
+```
+
+A class without that annotation has the default budget `<transacts>`, so
+the same `Fresh` is refused:
+
+```{.verse .reject expect="which its effects (<allocates>) do not allow"}
+chest := class:
+    var Gold:int = 0
+
+Fresh(N:int)<allocates>:chest = chest{Gold := N}
+
+Main():void = Print("{Fresh(3).Gold}")
 ```
 
 ## Limits and readings
